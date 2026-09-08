@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 """전체 기간 누적 방향 적중률 (IS/OOS 색 구분) — 덱 팔레트"""
 import pandas as pd, numpy as np, os
+from pathlib import Path
 import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
@@ -8,7 +9,9 @@ import matplotlib.dates as mdates
 matplotlib.rcParams['font.family']='AppleGothic'
 matplotlib.rcParams['axes.unicode_minus']=False
 
-BASE="/Users/macbook/btc_project"; ET="America/New_York"
+# 저장소 루트 (data/ 가 있는 곳) — 실행 위치와 무관하게 파일 위치로부터 계산
+BASE=str(Path(__file__).resolve().parents[2]); ET="America/New_York"
+HERE=str(Path(__file__).resolve().parent)   # analysis/slope_change/
 NAVY="#122B46"; STEEL="#7C97B3"; RED="#A93226"; MUTE="#6B7280"
 
 vix=pd.read_parquet(f"{BASE}/data/vix_slope_daily.parquet")
@@ -63,7 +66,8 @@ ax.grid(alpha=0.25)
 ax.tick_params(colors=NAVY, labelsize=8)
 for sp in ax.spines.values(): sp.set_color("#CCCCCC")
 plt.tight_layout()
+os.makedirs(f"{BASE}/_slide_assets", exist_ok=True)
 out=f"{BASE}/_slide_assets/slide_period_hit.png"
 plt.savefig(out,dpi=200,bbox_inches="tight")
-plt.savefig(f"{BASE}/slope_change/charts/slope_change_period_hit.png",dpi=200,bbox_inches="tight")
+plt.savefig(f"{HERE}/charts/slope_change_period_hit.png",dpi=200,bbox_inches="tight")
 print(f"n={len(df)}, final={final:.1f}%, saved {out}")

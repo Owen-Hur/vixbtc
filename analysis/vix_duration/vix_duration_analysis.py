@@ -24,13 +24,16 @@ VIX → BTC Duration 분석 (최종 버전, T-day 시간축)
 import pandas as pd
 import numpy as np
 import os
+from pathlib import Path
 from scipy import stats
 import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 
 # ────────────────── 1. 데이터 로드 ──────────────────
-BASE_DIR = "/Users/macbook/btc_project"
+# 저장소 루트 (data/ 가 있는 곳) — 실행 위치와 무관하게 파일 위치로부터 계산
+BASE_DIR = str(Path(__file__).resolve().parents[2])
+OUT_DIR = str(Path(__file__).resolve().parent)   # analysis/vix_duration/ — 산출물(data/ · charts/) 위치
 vix = pd.read_parquet(f"{BASE_DIR}/data/vix_daily.parquet").copy()
 vix.columns = ["vix"]
 vidx = pd.to_datetime(vix.index)
@@ -140,7 +143,7 @@ for tday_min in range(0, NMIN):
     })
 
 mres = pd.DataFrame(minute_data)
-mres.to_csv(f"{BASE_DIR}/vix_duration/data/vix_duration_minute_metrics.csv", index=False)
+mres.to_csv(f"{OUT_DIR}/data/vix_duration_minute_metrics.csv", index=False)
 
 # ────────────────── 5. 핵심 통계 출력 ──────────────────
 def corr_stats(a, b):
@@ -248,7 +251,7 @@ ax.legend(loc="lower right", fontsize=9)
 ax.grid(alpha=0.3)
 
 plt.tight_layout()
-chart_path = f"{BASE_DIR}/vix_duration/charts/vix_duration_minute_metrics.png"
+chart_path = f"{OUT_DIR}/charts/vix_duration_minute_metrics.png"
 plt.savefig(chart_path, dpi=120, bbox_inches="tight")
 plt.close()
 print(f"Saved: {chart_path}")
@@ -265,7 +268,7 @@ ax.set_title("2σ event paths — BTC response across T-day (primary 2024-2026)"
 ax.legend(loc="upper right", fontsize=9)
 ax.grid(alpha=0.3)
 plt.tight_layout()
-chart_path2 = f"{BASE_DIR}/vix_duration/charts/vix_duration_2sigma_events.png"
+chart_path2 = f"{OUT_DIR}/charts/vix_duration_2sigma_events.png"
 plt.savefig(chart_path2, dpi=120, bbox_inches="tight")
 plt.close()
 print(f"Saved: {chart_path2}")
@@ -309,7 +312,7 @@ summary = {
         "n_drop": len(drop),
     },
 }
-with open(f"{BASE_DIR}/vix_duration/data/vix_duration_summary.json", "w") as f:
+with open(f"{OUT_DIR}/data/vix_duration_summary.json", "w") as f:
     json.dump(summary, f, indent=2)
 
 print()

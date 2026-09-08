@@ -1,3 +1,10 @@
+"""
+VIX 1시간봉의 각 변동 시점에 1분~4시간 후 BTC 수익률을 붙여 반응 데이터셋을 만든다.
+장중(is_market_hours) 플래그도 함께 기록한다.
+
+입력: data/vix_1h.parquet, data/btc_1m_24h/
+출력: data/vix_1h_btc_response.parquet
+"""
 import pandas as pd
 import numpy as np
 import os

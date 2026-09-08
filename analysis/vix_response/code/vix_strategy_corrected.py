@@ -1,3 +1,11 @@
+"""
+yfinance 1시간봉의 timestamp 가 bar '시작' 시각이라는 점 때문에 생긴 정렬 오류를
+교정한 전략 재계산. VIX 변화율 시그널을 1 bar shift 해 확인 가능 시점(t+1h)부터
+BTC 수익률을 측정하도록 맞춘 뒤 성과를 다시 평가한다.
+
+입력: data/vix_1h.parquet, data/btc_1m_24h/
+출력: vix_strategy_corrected.png
+"""
 import pandas as pd
 import numpy as np
 from scipy import stats

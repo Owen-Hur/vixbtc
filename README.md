@@ -233,7 +233,8 @@ VIX 채널이 닫혔으므로 BTC 자체의 실현변동성(Realized Volatility)
 
 ### 이번 재실행으로 확정한 사항 (이전 정리에서 미해결로 남겨둔 각주)
 
-1. **`STRATEGY_REPORT.md` vs `slope_change_report.md` 상충 → 후자가 확정.**
+1. **`docs/strategy_report_2026-05-24_superseded.md` vs `slope_change_report.md` 상충 → 후자가 확정.**
+   (전자는 원본 프로젝트에서 `STRATEGY_REPORT.md` 였고, 폐기 사실을 파일명에서 바로 알 수 있도록 개명했습니다.)
    전자(2026-05-24)의 백테스트 성과는 lookahead 미제거 상태의 결과이고, 생성 스크립트도 남아 있지 않아 재현할 수 없어 문서에서 제거했습니다.
    유효한 값은 후자(2026-06-02, T-day 축)의 **50.4%** 이며, **재현 가능한 편향 대조군의 최댓값은 61.8%** (`compute_biased.py`, 동일 구간·동일 표본 n=123)입니다.
 
@@ -316,7 +317,7 @@ VIX 채널이 닫혔으므로 BTC 자체의 실현변동성(Realized Volatility)
 │   ├── vix_duration/                # ★ VIX 유효시간 1,035시점 분석 — 47.5%
 │   ├── vix_overnight_granger/       #   야간 지속성 + Granger 인과 (P0 종결)
 │   ├── vix_threshold/               #   임계 필터 + 부호 데이터 학습 재검증
-│   ├── vix_response/                #   VIX 1h / 반응함수 / 전략 탐색 (중간 단계 코드·차트)
+│   ├── vix_response/                #   VIX 1h / 반응함수 / 전략 탐색 (중간 단계 — code/ · charts/ · reports/)
 │   ├── rv_regime/                   #   RV Regime 전환 시도 + 편향 제거 버전(revised/)
 │   └── other_signals/               #   펀딩비 · ETF flow · DVOL · Fear&Greed 등 부가 신호
 │
@@ -382,7 +383,11 @@ python analysis/vix_overnight_granger/code/vix_granger.py
 python analysis/vix_threshold/vix_threshold_directional.py
 ```
 
-> 분석 스크립트들은 저장소 루트의 `data/` 를 기준 경로로 참조합니다. 루트에서 실행하거나 스크립트 상단의 `BASE_DIR` 를 조정하세요.
+> 분석 스크립트들은 저장소 루트의 `data/` 를 기준 경로로 참조합니다. 참조 방식은 두 가지입니다.
+> `analysis/slope_change/`, `analysis/vix_duration/`, `analysis/other_signals/` 의 스크립트는 상단에서
+> `Path(__file__).resolve().parents[N]` 로 루트를 계산하므로 **어느 디렉토리에서 실행해도 됩니다**(위 예시처럼 `cd` 해도 무방).
+> `analysis/vix_overnight_granger/`, `analysis/vix_threshold/`, `analysis/vix_response/` 의 스크립트는 `data/...` 상대경로를
+> 그대로 쓰므로 **저장소 루트를 작업 디렉토리로 두고 실행**해야 합니다.
 > `analysis/rv_regime/revised/` 는 `rv_regime` 이라는 이름의 패키지로 import됩니다(디렉토리명 변경 또는 심볼릭 링크 필요).
 > 포함된 `config.py` 는 원본 저장소에 없던 파일을 문서 기재값으로 복원한 것이며, 각 값의 출처는 파일 상단 주석에 적어 두었습니다.
 

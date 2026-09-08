@@ -1,3 +1,10 @@
+"""
+VIX→BTC 일별 반응의 전체 표본 종합 분석
+(시차별 상관, permutation test 10,000회, dose-response 등).
+
+입력: data/vix_btc_response.parquet
+출력: vix_full_analysis.png
+"""
 import pandas as pd
 import numpy as np
 from scipy import stats

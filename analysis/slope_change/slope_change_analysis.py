@@ -24,12 +24,15 @@ import pandas as pd
 import numpy as np
 import os
 import json
+from pathlib import Path
 from scipy import stats
 import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 
-BASE_DIR = "/Users/macbook/btc_project"
+# 저장소 루트 (data/ 가 있는 곳) — 실행 위치와 무관하게 파일 위치로부터 계산
+BASE_DIR = str(Path(__file__).resolve().parents[2])
+OUT_DIR = str(Path(__file__).resolve().parent)   # analysis/slope_change/ — 산출물(data/ · charts/) 위치
 ET = "America/New_York"
 
 # ─────────────────── 1. 데이터 로드 ───────────────────
@@ -150,7 +153,7 @@ for tday_min in range(0, NMIN_OVERNIGHT):
     })
 
 mres = pd.DataFrame(minute_data)
-mres.to_csv(f"{BASE_DIR}/slope_change/data/slope_change_minute_metrics.csv", index=False)
+mres.to_csv(f"{OUT_DIR}/data/slope_change_minute_metrics.csv", index=False)
 print(f"Saved: slope_change_minute_metrics.csv")
 
 # ─────────────────── 6. 핵심 시점별 적중률 ───────────────────
@@ -272,7 +275,7 @@ ax.legend(loc="lower right", fontsize=9)
 ax.grid(alpha=0.3)
 
 plt.tight_layout()
-chart1_path = f"{BASE_DIR}/slope_change/charts/slope_change_minute_metrics.png"
+chart1_path = f"{OUT_DIR}/charts/slope_change_minute_metrics.png"
 plt.savefig(chart1_path, dpi=120, bbox_inches="tight")
 plt.close()
 print(f"Saved: {chart1_path}")
@@ -312,7 +315,7 @@ ax.set_ylim(0, max(80, max(is_hits + oos_hits + all_hits) + 8))
 ax.legend(loc="upper right", fontsize=9)
 ax.grid(alpha=0.3, axis="y")
 plt.tight_layout()
-chart2_path = f"{BASE_DIR}/slope_change/charts/slope_change_magnitude_hit.png"
+chart2_path = f"{OUT_DIR}/charts/slope_change_magnitude_hit.png"
 plt.savefig(chart2_path, dpi=120, bbox_inches="tight")
 plt.close()
 print(f"Saved: {chart2_path}")
@@ -337,7 +340,7 @@ for ax, (name, sub) in zip(axes, [("IS", is_df), ("OOS", oos_df)]):
     ax.grid(alpha=0.3)
 
 plt.tight_layout()
-chart3_path = f"{BASE_DIR}/slope_change/charts/slope_change_return_distribution.png"
+chart3_path = f"{OUT_DIR}/charts/slope_change_return_distribution.png"
 plt.savefig(chart3_path, dpi=120, bbox_inches="tight")
 plt.close()
 print(f"Saved: {chart3_path}")
@@ -366,7 +369,7 @@ summary = {
         "ALL_avg_hit": float(mres["hit_all"].mean()),
     },
 }
-with open(f"{BASE_DIR}/slope_change/data/slope_change_summary.json", "w") as f:
+with open(f"{OUT_DIR}/data/slope_change_summary.json", "w") as f:
     json.dump(summary, f, indent=2, default=str)
 
 print("\nDONE")

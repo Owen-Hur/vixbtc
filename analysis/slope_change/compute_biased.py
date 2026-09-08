@@ -1,8 +1,10 @@
 """Lookahead 방지 여부에 따른 방향 적중률 대비 — 슬라이드 8용"""
 import pandas as pd, numpy as np, os
+from pathlib import Path
 from scipy import stats
 
-BASE = "/Users/macbook/btc_project"; ET = "America/New_York"
+# 저장소 루트 (data/ 가 있는 곳) — 실행 위치와 무관하게 파일 위치로부터 계산
+BASE = str(Path(__file__).resolve().parents[2]); ET = "America/New_York"
 vix = pd.read_parquet(f"{BASE}/data/vix_slope_daily.parquet")
 vix.index = pd.DatetimeIndex(vix.index); vix = vix.sort_index()
 vix["slope_change"] = vix["slope"].diff()

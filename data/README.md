@@ -139,8 +139,7 @@ python data_collection/fetch_vix_daily.py
 #    → vix_slope_daily.parquet 생성
 
 # 2) BTC 1분봉 (오래 걸립니다, ~220MB)
-python data_collection/fetch_btc_1m_historical.py
-python data_collection/download_klines_extended.py   # 구간 확장
+python data_collection/fetch_btc_1m_historical.py   # 2020-01~2023-12 구간 포함
 
 # 3) BTC 장중 필터링본 생성
 #    docs/preprocessing_guide.md 절차에 따라 btc_historical_processed/ 생성

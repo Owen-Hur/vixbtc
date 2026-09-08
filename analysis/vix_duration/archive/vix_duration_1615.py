@@ -17,6 +17,7 @@ VIX 종가(16:15 ET) → BTC 야간 지속성 분석 (수정판)
 import pandas as pd
 import numpy as np
 import os
+from pathlib import Path
 from scipy import stats
 import matplotlib
 matplotlib.use("Agg")
@@ -24,7 +25,9 @@ import matplotlib.pyplot as plt
 import matplotlib.font_manager as fm
 
 # ────────────────── 1. 데이터 로드 ──────────────────
-BASE_DIR = "/Users/macbook/btc_project"
+# 저장소 루트 (data/ 가 있는 곳) — 실행 위치와 무관하게 파일 위치로부터 계산
+BASE_DIR = str(Path(__file__).resolve().parents[3])
+OUT_DIR = str(Path(__file__).resolve().parent)   # analysis/vix_duration/archive/ — 산출물 위치
 vix = pd.read_parquet(f"{BASE_DIR}/data/vix_daily.parquet").copy()
 vix.columns = ["vix"]
 vidx = pd.to_datetime(vix.index)
@@ -143,7 +146,7 @@ for m in range(1, NMIN + 1):
     })
 
 mres = pd.DataFrame(minute_results)
-mres.to_csv(f"{BASE_DIR}/vix_duration/data/vix_duration_1615_minute_corr.csv", index=False)
+mres.to_csv(f"{OUT_DIR}/vix_duration_1615_minute_corr.csv", index=False)
 
 # ────────────────── 4. 호라이즌별 요약 ──────────────────
 def corr_stats(a, b):
@@ -248,7 +251,7 @@ ax.legend(loc="lower right")
 ax.grid(alpha=0.3)
 
 plt.tight_layout()
-plt.savefig(f"{BASE_DIR}/vix_duration/charts/vix_duration_1615_minute_corr.png", dpi=120, bbox_inches="tight")
+plt.savefig(f"{OUT_DIR}/vix_duration_1615_minute_corr.png", dpi=120, bbox_inches="tight")
 print("\nChart saved: vix_duration_1615_minute_corr.png")
 
 # ────────────────── 7. 결과 요약 저장 (JSON) ──────────────────
@@ -271,7 +274,7 @@ summary = {
         "r": float(mres["r_primary"].min()),
     },
 }
-with open(f"{BASE_DIR}/vix_duration/data/vix_duration_1615_summary.json", "w") as f:
+with open(f"{OUT_DIR}/vix_duration_1615_summary.json", "w") as f:
     json.dump(summary, f, indent=2, default=str)
 
 print(f"\nAvg hit rate (primary): {summary['avg_hit_primary']:.2f}%")

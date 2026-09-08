@@ -1,3 +1,10 @@
+"""
+VIX 1시간봉 시그널 기반 전략의 진입조건(임계 σ)·보유기간별 성과를 격자로 비교하고
+Buy & Hold 와 대조한다.
+
+입력: data/vix_1h_btc_response.parquet, data/btc_1m_24h/
+출력: vix_strategy_full.png
+"""
 import pandas as pd
 import numpy as np
 from scipy import stats

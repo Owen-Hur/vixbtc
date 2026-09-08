@@ -3,7 +3,7 @@ BTC 선물 1분봉 확장 다운로드 (data.binance.vision)
 2020-01 ~ 2023-12 구간을 btc_1m_24h/ 포맷에 맞춰 저장
 
 사용법:
-  python data/download_klines_extended.py
+  python data_collection/fetch_btc_1m_historical.py
 """
 import os
 import urllib.request

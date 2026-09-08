@@ -1,3 +1,10 @@
+"""
+VIX 충격의 영향 지속시간을 (1) 시차별 상관 decay (2) |vix_pct|>1σ 급변 event study
+(3) VIX 레벨 구간별 상관 세 가지 관점에서 추정한다.
+
+입력: data/vix_btc_response.parquet
+출력: vix_impact_duration_analysis.png
+"""
 import pandas as pd
 import numpy as np
 from scipy import stats
