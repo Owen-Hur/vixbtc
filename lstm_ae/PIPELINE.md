@@ -1,5 +1,21 @@
 # LSTM Autoencoder Pipeline
 
+> ## ⚠️ 재실행 검증 노트 (2026-09-08)
+>
+> 이 문서는 **VIXY 피처 합류 이전**에 작성된 설계 초안입니다. 아래 세 가지는 현재 코드와 다릅니다.
+> **확정 명세는 `lstm_ae/config.py` 입니다.**
+>
+> 1. **피처 개수**: 본문 §3.3은 "현재 BTC-only 4개 / VIXY 합류 후 7개 — 추가 예정"으로 기술하지만,
+>    확정 구성은 **7개**입니다 —
+>    `btc_return, trade_imbalance, trade_count, avg_trade_size, vixy_return, vixy_rolling_std, vixy_btc_corr`.
+> 2. **피처명**: 본문의 `vxx_return / vxx_rolling_std / vxx_btc_corr` 는 실제로 **`vixy_*`** 접두사입니다.
+> 3. **모델 개수**: 본문은 60분 단일 모델만 기술하지만, 실제 추론은 **모델 3개**를 사용합니다 —
+>    `main_60`(threshold 0.357368) + 장초반(09:45~10:28) 전용 `early_15`(0.574284) · `early_30`(0.781801).
+>    `config.EARLY_WINDOW_SIZES = [15, 30]`, encoder/decoder hidden `[32,16]`/`[16,32]`, latent 16.
+>
+> 재현 확인: `python -m lstm_ae.inference [--is]` 실행 시 커밋된 signal parquet이
+> **판정 불일치 0건**으로 재생성됩니다(IS 130,848 / OOS 98,136 windows).
+
 ## 1. 개요
 
 LSTM Autoencoder는 장중(09:30~15:59 ET) BTC-VIXY 관계의 이상 구간을 탐지한다.

@@ -1,5 +1,36 @@
 # LSTM Autoencoder Report
 
+> ## ⚠️ 재실행 검증 노트 (2026-09-08)
+>
+> 이 문서 본문의 수치는 **최종 재학습 이전 버전**의 실행 결과입니다.
+> 저장소에 커밋된 `artifacts/` 를 로드해 추론을 재실행한 결과, 일부 값이 문서와 다릅니다.
+> **확정값은 항상 `artifacts/threshold.json` 과 `artifacts/anomaly_signals_*.parquet` 입니다.**
+>
+> | 항목 | 본문 기재 (구버전) | **확정값 (artifacts 재실행)** |
+> |---|---|---|
+> | Threshold (IS 92.5 pctl) | 0.361667 | **0.357368** |
+> | IS score mean / std | 0.2596 / 1.0064 | **0.2573 / 1.0166** |
+> | IS score max | 330.7151 | **335.6274** |
+> | OOS score mean / std / max | 0.2441 / 0.0849 / 3.9886 | **0.2450 / 0.0862 / 3.7425** |
+> | OOS anomaly count / rate | 5,616 / 6.5% | **6,134 / 7.10%** |
+> | IS anomaly count / rate | 8,640 / 7.5% | 8,640 / 7.50% (일치) |
+> | anomaly 에피소드 수 (IS / OOS) | 823 / 516 | **800 / 548** |
+> | ≤14분 지속 비중 | 81% | **83.2%** (IS·OOS 공통) |
+> | 일별 anomaly% 최대 (IS / OOS) | 80.1% / 83.4% | **77.6% / 84.0%** |
+>
+> **재현 결과**: `python -m lstm_ae.inference [--is]` 를 커밋된 `model.pt`·`scaler.pkl`·`threshold.json` 으로 실행하면
+> `anomaly_signals_is.parquet`(130,848 windows) / `anomaly_signals_oos.parquet`(98,136 windows)이
+> **anomaly 판정 불일치 0건**(score 최대 오차 2×10⁻⁷)으로 재현됩니다.
+> `residual_analysis.py` 출력도 커밋된 로그와 숫자 단위로 완전히 일치합니다.
+>
+> **문서에 없던 사실 — 추론 파이프라인은 모델 3개를 사용합니다.**
+> 메인 60분 모델(`main_60`, threshold 0.357368) 외에 장초반(09:45~10:28) 전용
+> **15분 모델**(threshold 0.574284)과 **30분 모델**(threshold 0.781801)이 함께 동작합니다.
+> 그래서 signal 파일의 총 window 수(IS 130,848)가 메인 모델 window 수(115,188)보다 큽니다.
+> 아래 5장의 통계는 모두 `main_60` 기준입니다.
+>
+> 재학습(§4, val loss 0.2420 / epoch 32)은 CPU 기준 ~29분이 소요되어 이번 검증에서는 실행하지 않았습니다 — **재실행 미검증**.
+
 ## 1. Overview
 
 BTC 체결 데이터 + VIXY 1분봉으로 학습한 LSTM Autoencoder의 IS/OOS 결과를 정리한다.

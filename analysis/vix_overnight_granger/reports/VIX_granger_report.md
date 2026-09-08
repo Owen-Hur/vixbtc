@@ -18,7 +18,8 @@
 | 일별 | ΔVIX%, Δslope(기간구조) | 16:00 ET close-to-close 수익률 | 1635일 (2020-01-03~2026-05-25) | 둘 다 16:00 ET 정렬 |
 | 시간별(장중) | ΔVIX | 시간별 수익률 | 3479시간 (2024-05-30~2026-05-25) | 10~16시, 연속 1h만 |
 
-- VIX slope = VIX(30d) − VIX(3m) 계열(`vix_slope_daily.parquet`). 논문이 BTC에 가장 강하다고 한 PCA2(기울기)에 대응.
+- VIX slope = **VIX(3m) − VIX(30d)** 계열(`vix_slope_daily.parquet`). 논문이 BTC에 가장 강하다고 한 PCA2(기울기)에 대응.
+  <sub>※ 2026-09-08 정정: 초판 생성문에 부호가 뒤집혀(`VIX(30d) − VIX(3m)`) 적혀 있었다. 실제 데이터(`slope = vix3m - vix`, §5의 기술과 `analysis/slope_change/` 정의)와 검정 결과는 모두 `VIX3M − VIX` 기준이며, 수치는 변하지 않는다.</sub>
 - **VIX 분 단위 데이터 미보유** → 분 단위 Granger는 수행 불가. 보유 최고 해상도는 시간별(2024-05~).
 
 ## 2. 정상성 (ADF: stat, p<0.05면 정상)
