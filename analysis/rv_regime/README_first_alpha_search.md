@@ -1,47 +1,47 @@
-# first/ — 1차 알파 탐색 아카이브
+# 1차 알파 탐색 아카이브 (원본 `first/` 폴더)
 
-이 폴더는 BTC 알파 전략 탐색 과정에서 진행한 1차 작업물을 보관한다.
+BTC 알파 전략 탐색 과정에서 진행한 1차 작업물의 기록이다.
 **모든 시도가 실패했지만**, 실패 과정 자체가 다음 단계 설계의 근거가 된다.
 
-## 폴더 구조
+## 산출물 위치
+
+원본 프로젝트의 `first/` 폴더에 있던 산출물이며, 이 저장소에서는 아래 위치에 흩어져 있다.
 
 ```
-first/
-├── README.md                          # 본 문서
-├── STRATEGY_JOURNAL.md                # 6단계 실패 여정 일지
-├── data/                              # 다운로드/생성 데이터
-│   ├── vix_daily.parquet              # FRED VIX 일간 (2020-01~2026-05)
-│   ├── funding_rate_history.parquet   # Binance 펀딩레이트 (8h 간격)
-│   ├── vix_btc_response.parquet       # VIX→BTC 반응 (2020-2023, 1017일)
-│   └── vix_btc_response_full.parquet  # VIX→BTC 반응 (2020-2026, 1635일)
-├── rv_regime/                         # 수정된 RV Regime 전략 코드
-│   ├── strategy.py                    # percentile 수정 + 펀딩 반영
-│   ├── data_loader.py                 # load_daily_funding 추가
-│   └── walk_forward.py                # 펀딩 전달 + 22 라운드
-├── analysis_scripts/                  # 재현 가능한 분석 스크립트 8개
-│   ├── 01_download_funding_rate.py
-│   ├── 02_download_vix_daily.py
-│   ├── 03_btc_volatility_direction.py
-│   ├── 04_fixed_param_with_funding.py
-│   ├── 05_rv_ratio_funding_combined.py
-│   ├── 06_vix_ma_alignment.py
-│   ├── 07_vix_predictive_power.py
-│   └── 08_vix_release_btc_response.py
+analysis/rv_regime/
+├── README_first_alpha_search.md       # 본 문서
+├── revised/                           # 편향 제거판 RV Regime 전략 코드
+│   ├── config.py                      # 경로 · TAKER_FEE · SW/LW/QH · IS_END
+│   ├── strategy.py                    # percentile 수정 (values[:i])
+│   ├── data_loader.py                 # load_daily_funding 포함
+│   └── walk_forward.py                # 펀딩 반영 + 22 라운드
 └── results/
+    ├── backtest_result.txt            # sw=3/lw=75/qh=0.8 IS·OOS·FULL 성과
     └── lstm_ae_residual_analysis.log  # LSTM-AE 잔차 분석 출력
+
+analysis/other_signals/                # 아래 3~7단계를 생성한 스크립트
+├── 01_download_funding_rate.py
+├── 02_download_vix_daily.py
+├── 03_btc_volatility_direction.py
+├── 04_fixed_param_with_funding.py     # ← 3단계
+├── 05_rv_ratio_funding_combined.py    # ← 4단계
+├── 06_vix_ma_alignment.py             # ← 5단계
+├── 07_vix_predictive_power.py         # ← 6단계
+└── 08_vix_release_btc_response.py     # ← 7단계
+
+docs/strategy_journal.md               # 6단계 실패 여정 일지 (원 STRATEGY_JOURNAL.md)
+data/                                  # vix_daily · funding_rate_history 등 (재수집 안내: data/README.md)
 ```
 
 ## 작업 흐름 요약
 
 ### 1단계: RV Regime v1 (편향 내재)
-이전에 만든 RV Regime 전략(Sharpe 0.69, +20.7%p)이 시작점.
+BTC 자체 실현변동성(rv_ratio) 레짐으로 방향을 잡는 전략이 시작점.
 3가지 편향(당일 데이터 포함 percentile, 펀딩 미반영, 1.6년 짧은 검증)을 발견.
 
-> **재실행 검증 (2026-09-08)**: v1의 **원본 코드는 저장소에 남아 있지 않습니다**(`revised/` 만 보존).
-> 위 문서 기술대로 재구성해(expanding percentile `values[:i+1]`, 펀딩 미반영, 2024-10~2026-05 7 WF 라운드) 실행한 결과는
-> **+37.8%, Sharpe 0.66, B&H +25.2% 대비 +12.6%p, Short 적중률 56.2%** 였습니다.
-> 문서 수치(+41.9% / 0.69 / +20.7%p / 59.6%)와 정확히 같지는 않으나, "편향 포함 시 Sharpe ≈0.7 · 초과수익 플러스" 라는 성질은 재현됩니다.
-> 탐색 격자·라운드 경계·B&H 정의의 세부 차이로 보이며, **확정값은 아래 2단계(편향 제거판)** 입니다.
+> **v1의 성과 수치는 이 저장소에 싣지 않습니다.** 초기 버전은 lookahead(자기참조) 편향으로 부풀려진 결과였고,
+> 원본 코드가 저장소에 남아 있지 않아(`revised/` 만 보존) 정확한 수치를 확인할 수 없습니다.
+> **확정값은 아래 2단계(편향 제거판)** 입니다.
 
 ### 2단계: 편향 수정 → 알파 소멸
 - `strategy.py`에서 expanding percentile을 `values[:i+1]` → `values[:i]`로 수정
@@ -55,16 +55,17 @@ first/
 > B&H **+51.6%**, 초과 **-109.0%p**, 22라운드 중 test Sharpe > 0 은 12/22, 평균 test Sharpe 0.32.
 > 펀딩레이트 실측 일평균 **0.0328%** (연 ~12%). 문서 수치와 소수점까지 일치합니다.
 >
-> 실행에는 저장소에 커밋되지 않은 `rv_regime/config.py` 가 필요합니다. 문서 기재값으로 복원해 사용했습니다:
+> 실행에 필요한 `rv_regime/config.py` 는 원본 저장소에 커밋되어 있지 않아 문서 기재값으로 복원했고,
+> 값마다 출처를 주석으로 달아 `revised/config.py` 로 포함했습니다:
 > `TRADE_DAY_CUTOFF_HOUR=17`, `TAKER_FEE=0.0004`(taker 0.04% 편도), `SW/LW/QH=3/75/0.80`, `IS_END="2022-12-31"`,
 > `DATA_DIR`/`BTC_1M_DIR` 는 저장소 `data/` 기준.
 
-### 3단계: 고정 파라미터 검증
+### 3단계: 고정 파라미터 검증 (`analysis/other_signals/04_fixed_param_with_funding.py`)
 - Train 2020-2022 → OOS 2023-2026 (lookahead bias 없음)
 - 선택: sw=4, lw=14, qh=0.60 (Train Sharpe 1위)
 - OOS +89.4%, Sharpe 0.63이지만 B&H 대비 -173.9%p
 
-### 4단계: rv_ratio + 펀딩 결합
+### 4단계: rv_ratio + 펀딩 결합 (`analysis/other_signals/05_rv_ratio_funding_combined.py`)
 - 4,200 조합 그리드 서치
 - 펀딩레이트 단독 예측력 분석: vs 다음날 BTC 상관 -0.005 (사실상 0)
 - 두 조건 동시 충족 시 Short → Short 비율 3.2% → 사실상 B&H
@@ -96,4 +97,5 @@ first/
 ## 다음 단계
 
 이 1차 탐색은 **무엇이 작동하지 않는지**를 정확히 보여주었다.
-mid/, final/ 폴더에서 다른 접근을 진행 중. 이 아카이브는 그 근거 자료다.
+여기서 얻은 "외부 시그널(VIX)로는 시차 예측이 안 된다"는 결론이
+`analysis/slope_change/` · `analysis/vix_duration/` 의 T-day 재검증으로 이어졌다.

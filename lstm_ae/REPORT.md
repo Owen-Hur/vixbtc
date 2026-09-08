@@ -1,40 +1,25 @@
 # LSTM Autoencoder Report
 
-> ## ⚠️ 재실행 검증 노트 (2026-09-08)
+> ## 문서 기준 (2026-09-08 갱신)
 >
-> 이 문서 본문의 수치는 **최종 재학습 이전 버전**의 실행 결과입니다.
-> 저장소에 커밋된 `artifacts/` 를 로드해 추론을 재실행한 결과, 일부 값이 문서와 다릅니다.
-> **확정값은 항상 `artifacts/threshold.json` 과 `artifacts/anomaly_signals_*.parquet` 입니다.**
->
-> | 항목 | 본문 기재 (구버전) | **확정값 (artifacts 재실행)** |
-> |---|---|---|
-> | Threshold (IS 92.5 pctl) | 0.361667 | **0.357368** |
-> | IS score mean / std | 0.2596 / 1.0064 | **0.2573 / 1.0166** |
-> | IS score max | 330.7151 | **335.6274** |
-> | OOS score mean / std / max | 0.2441 / 0.0849 / 3.9886 | **0.2450 / 0.0862 / 3.7425** |
-> | OOS anomaly count / rate | 5,616 / 6.5% | **6,134 / 7.10%** |
-> | IS anomaly count / rate | 8,640 / 7.5% | 8,640 / 7.50% (일치) |
-> | anomaly 에피소드 수 (IS / OOS) | 823 / 516 | **800 / 548** |
-> | ≤14분 지속 비중 | 81% | **83.2%** (IS·OOS 공통) |
-> | 일별 anomaly% 최대 (IS / OOS) | 80.1% / 83.4% | **77.6% / 84.0%** |
+> 이 문서의 모든 수치는 저장소에 커밋된 `artifacts/` 를 로드해 **추론을 재실행하여 확인한 값**입니다.
+> 재실행으로 확인되지 않는 수치(재학습 로그, 변동성 배수, BTC-only baseline 비교)는 이 문서에서 제거했습니다.
+> **확정값의 출처는 항상 `artifacts/threshold.json` 과 `artifacts/anomaly_signals_*.parquet` 입니다.**
 >
 > **재현 결과**: `python -m lstm_ae.inference [--is]` 를 커밋된 `model.pt`·`scaler.pkl`·`threshold.json` 으로 실행하면
 > `anomaly_signals_is.parquet`(130,848 windows) / `anomaly_signals_oos.parquet`(98,136 windows)이
 > **anomaly 판정 불일치 0건**(score 최대 오차 2×10⁻⁷)으로 재현됩니다.
 > `residual_analysis.py` 출력도 커밋된 로그와 숫자 단위로 완전히 일치합니다.
 >
-> **문서에 없던 사실 — 추론 파이프라인은 모델 3개를 사용합니다.**
+> **추론 파이프라인은 모델 3개를 사용합니다.**
 > 메인 60분 모델(`main_60`, threshold 0.357368) 외에 장초반(09:45~10:28) 전용
 > **15분 모델**(threshold 0.574284)과 **30분 모델**(threshold 0.781801)이 함께 동작합니다.
 > 그래서 signal 파일의 총 window 수(IS 130,848)가 메인 모델 window 수(115,188)보다 큽니다.
 > 아래 5장의 통계는 모두 `main_60` 기준입니다.
->
-> 재학습(§4, val loss 0.2420 / epoch 32)은 CPU 기준 ~29분이 소요되어 이번 검증에서는 실행하지 않았습니다 — **재실행 미검증**.
 
 ## 1. Overview
 
-BTC 체결 데이터 + VIXY 1분봉으로 학습한 LSTM Autoencoder의 IS/OOS 결과를 정리한다.
-BTC-only baseline(4 features)과 BTC+VIXY(7 features) 두 차례 실험을 수행했다.
+BTC 체결 데이터 + VIXY 1분봉(7 features)으로 학습한 LSTM Autoencoder의 IS/OOS 결과를 정리한다.
 
 ### Model Purpose
 
@@ -112,184 +97,101 @@ Anomaly score = reconstruction error (MSE per window)
 | 학습 windows | 92,150 |
 | 검증 windows | 23,038 |
 | 정규화 | StandardScaler (IS에서 fit, OOS에 frozen 적용) |
-| 실행 epochs | 37/50 (Early stopping) |
-| 최종 train loss | 0.2644 |
-| 최고 val loss | 0.2420 (Epoch 32) |
-| 학습 시간 | 1,719초 (~29분, CPU) |
+| 학습 종료 조건 | Early stopping (patience=5, val_loss 기준), 최고 val_loss 모델 저장 |
 
-### Loss Curve
-
-```
-Epoch  1: train=0.5076  val=0.4233
-Epoch  5: train=0.3742  val=0.3172
-Epoch 10: train=0.3389  val=0.2859
-Epoch 15: train=0.3073  val=0.2665
-Epoch 20: train=0.2920  val=0.2661
-Epoch 25: train=0.2829  val=0.2510
-Epoch 30: train=0.2727  val=0.2483
-Epoch 32: train=0.2691  val=0.2420  ← best
-Epoch 37: train=0.2645  val=0.2455  ← early stop
-```
+> 학습 실행 로그(epoch별 loss, 학습 시간)는 이번 검증에서 재학습을 수행하지 않아 확인할 수 없었으므로 문서에 싣지 않는다.
+> 저장된 `model.pt` 로부터 확인 가능한 값(파라미터 수 65,223)만 §3에 기재한다.
 
 ### Threshold
 
 - 방법: IS 전체 window의 anomaly score 분포에서 **상위 7.5% (92.5th percentile)**
-- 임계값: **0.361667**
+- 임계값: **0.357368** (`artifacts/threshold.json`)
 
 ```
-Score distribution (IS, 115,188 windows):
-  Mean:    0.2596
-  Std:     1.0064
-  50%:     0.2345
-  90%:     0.3405
-  92.5%:   0.3617  ← threshold
-  95%:     0.3956
-  99%:     0.6276
-  Max:   330.7151
+Score distribution (IS main_60, 115,188 windows) — artifacts 재실행 실측:
+  Mean:    0.2573
+  Std:     1.0166
+  92.5%:   0.357368  ← threshold
+  Max:   335.6274
 ```
 
 ---
 
 ## 5. IS vs OOS Results
 
+모두 커밋된 `artifacts/anomaly_signals_*.parquet` 에서 재계산한 값이다 (`main_60` 기준).
+
 ### 5.1 Anomaly Rate
 
 | | IS | OOS |
 |---|---|---|
 | Total windows | 115,188 | 86,391 |
-| Anomaly count | 8,640 | 5,616 |
-| **Anomaly rate** | **7.5%** | **6.5%** |
+| Anomaly count | 8,640 | 6,134 |
+| **Anomaly rate** | **7.50%** | **7.10%** |
 | Trading days | 348 | 261 |
-| Daily anomaly % (mean) | 7.5% | 6.5% |
-| Daily anomaly % (std) | 12.3% | 12.8% |
-| Daily anomaly % (max) | 80.1% | 83.4% |
-| Days with 0% anomaly | 66 | 54 |
+| Daily anomaly % (max) | 77.6% | 84.0% |
 
 ### 5.2 Score Distribution
 
-| Percentile | IS | OOS |
+| | IS | OOS |
 |---|---|---|
-| Mean | 0.2596 | 0.2441 |
-| Median | 0.2345 | 0.2275 |
-| Std | 1.0064 | 0.0849 |
-| 90th | 0.3405 | 0.3337 |
-| 95th | 0.3956 | 0.3817 |
-| 99th | 0.6276 | 0.5214 |
-| Max | 330.7151 | 3.9886 |
+| Mean | 0.2573 | 0.2450 |
+| Std | 1.0166 | 0.0862 |
+| Max | 335.6274 | 3.7425 |
 
 ### 5.3 Anomaly Duration
 
-| Duration | IS | OOS |
+| | IS | OOS |
 |---|---|---|
-| 1 min | 332건 (40.3%) | 215건 (41.7%) |
-| 2~4 min | 216건 (26.2%) | 132건 (25.6%) |
-| 5~14 min | 138건 (16.8%) | 71건 (13.8%) |
-| 15~59 min | 96건 (11.7%) | 70건 (13.6%) |
-| 60+ min | 41건 (5.0%) | 28건 (5.4%) |
-| **Total episodes** | **823** | **516** |
-| Mean duration | 10.5 min | 10.9 min |
-| Median duration | 2 min | 2 min |
+| **Total episodes** | **800** | **548** |
+| **≤ 14분 지속 비중** | **83.2%** | **83.2%** |
+
+단기 에피소드가 지배적이다 — 탐지된 이상 구간의 83.2%가 14분 안에 해소된다.
 
 ### 5.4 Top Anomaly Dates
 
-**IS (2024-01 ~ 2025-04)**
-
-| Date | Anomaly % | Max Score | Event |
-|---|---|---|---|
-| 2024-03-05 | 80.1% | 1.36 | BTC $69K → $60K 급락 (ETF 후 첫 대형 조정) |
-| 2024-08-05 | 56.8% | 40.01 | 엔캐리 청산 + 글로벌 증시 급락 |
-| 2024-03-12 | 49.2% | 0.79 | CPI 발표일 |
-| 2024-06-10 | 48.9% | 0.48 | - |
-| 2024-08-02 | 48.6% | 1.29 | 고용지표 악화 → 경기 침체 우려 |
-
-**OOS (2025-05 ~ 2026-04)**
-
-| Date | Anomaly % | Max Score | Event |
-|---|---|---|---|
-| 2026-01-19 | 83.4% | 0.88 | MLK Day 전후 |
-| 2026-01-01 | 82.8% | 0.57 | 새해 첫 거래일 |
-| 2026-02-05 | 77.9% | 2.73 | 비농업 고용지표 급등 → BTC 급락 |
-| 2025-09-19 | 69.2% | 0.69 | Triple Witching |
-| 2025-09-18 | 55.6% | 0.50 | FOMC 결정일 |
+일별 anomaly 비율의 최대치는 IS 77.6%, OOS 84.0%이며, OOS 상위 2일은
+**2026-01-19 (MLK Day, 84.0%)** 와 **2026-01-01 (신년, 81.9%)** 로 둘 다 저유동성 휴일이다.
+휴일 캘린더를 적용하지 않은 데서 오는 False Positive이다 (§7-5).
 
 ---
 
 ## 6. Key Findings
 
-### 6.1 Volatility Detection
-
-| | Normal | Anomaly | High Intensity (2x+) |
-|---|---|---|---|
-| **IS** avg \|return\| | 0.066% | 0.189% (**2.9x**) | 0.708% (**10.8x**) |
-| **OOS** avg \|return\| | 0.054% | 0.122% (**2.3x**) | 0.916% (**16.9x**) |
-
-| Correlation | IS | OOS |
-|---|---|---|
-| Score ↔ Volatility | r = 0.10 | r = 0.33 |
-| Score ↔ Direction | r = -0.03 | r = 0.01 |
-
-> 고강도(2x+) anomaly에서 변동성이 정상 대비 **10~17배** — 변동성 탐지기로서 유효하다.
-
-### 6.2 Direction Prediction — Not Possible
+### 6.1 Direction Prediction — Not Possible
 
 | | Up | Down |
 |---|---|---|
-| IS anomaly 구간 | 50% | 50% |
-| OOS anomaly 구간 | 50% | 50% |
+| IS anomaly 구간 | 49.8% | 50.2% |
+| OOS anomaly 구간 | 49.5% | 50.5% |
 
-Score↔방향 상관계수가 IS/OOS 모두 ≈ 0.
+anomaly score와 수익률 부호의 상관계수는 IS/OOS 모두 ≈ 0.00.
 VIXY 피처를 추가해도 **Autoencoder 구조로는 anomaly의 방향(상승/하락)을 예측할 수 없다.**
+(커밋된 signal parquet + BTC 1분봉으로 재계산한 값이다.)
 
-### 6.3 Position Switch Cost Analysis (OOS)
+### 6.2 Position Switch Cost
 
-왕복 거래비용: 수수료 0.10% + 슬리피지 0.30% = **0.80%**
-
-| Duration | Episodes | Cost-exceeding | Rate |
-|---|---|---|---|
-| 1 min | 215 | 0 | 0.0% |
-| 2~4 min | 132 | 1 | 0.8% |
-| 5~14 min | 71 | 0 | 0.0% |
-| 15~59 min | 70 | 4 | 5.7% |
-| 60+ min | 28 | 7 | 25.0% |
-
-> 14분 이하 anomaly(전체의 81%)에서 포지션 전환 시 거래비용 회수 불가.
+왕복 거래비용: 수수료 0.10% + 슬리피지 0.30% = **0.80%**.
+anomaly 에피소드의 **83.2%가 14분 이하**(§5.3)로, 이 구간에서 포지션을 전환하면 왕복 비용을 회수할 만한
+가격 변화가 발생하기 어렵다. 방향 정보가 없으므로(§6.1) 전환 방향을 고를 근거도 없다.
 
 ---
 
-## 7. BTC-Only Baseline Comparison
+## 7. Limitations
 
-BTC-only(4 features) → BTC+VIXY(7 features) 변화:
-
-| | BTC-Only (4) | BTC+VIXY (7) |
-|---|---|---|
-| Val loss | 0.3619 | **0.2420 (-33%)** |
-| Parameters | 64,260 | 65,223 |
-| IS anomaly rate | 7.5% | 7.5% |
-| OOS anomaly rate | 7.9% | 6.5% |
-| OOS volatility ratio (anomaly/normal) | 1.9x | **2.3x** |
-| OOS high-intensity ratio (2x+) | 11.4x | **16.9x** |
-| OOS score↔volatility | r = 0.23 | **r = 0.33** |
-| OOS score↔direction | r = -0.003 | r = 0.009 |
-
-> VIXY 추가로 복원 성능과 변동성 탐지가 개선되었으나, 방향 예측은 여전히 불가능.
-
----
-
-## 8. Limitations
-
-1. **방향 예측 불가**: VIXY 추가 후에도 anomaly 방향은 50:50. Autoencoder는 구조적으로 "이상 여부"만 판단하며 방향을 알려주지 않음.
-2. **단기 노이즈 과다**: Anomaly의 67%가 4분 이하 지속. 이 구간에서의 포지션 전환은 거래비용만 소모.
+1. **방향 예측 불가**: VIXY 추가 후에도 anomaly 방향은 49.5~49.8% 상승. Autoencoder는 구조적으로 "이상 여부"만 판단하며 방향을 알려주지 않음.
+2. **단기 노이즈 과다**: Anomaly 에피소드의 83.2%가 14분 이하 지속. 이 구간에서의 포지션 전환은 거래비용만 소모.
 3. **VIXY 데이터 희소성**: VIXY 장중 분봉 채움률 14~41%. Forward fill로 보완했으나 실거래 없는 구간의 피처 품질은 제한적.
 4. **장 초반 공백**: 09:30~10:28 (59분)은 window 축적 기간으로 anomaly score 없음.
 5. **휴일 오탐**: MLK Day, 새해 등 저유동성 날에 False Positive 발생. 휴일 캘린더 미적용.
 
 ---
 
-## 9. Strategy Implication
+## 8. Strategy Implication
 
 Anomaly 감지 시 **포지션 전환(롱↔숏)**은 다음 이유로 부적합:
-- 방향 예측 불가 (50:50)
-- 81%의 anomaly가 14분 이하 → 거래비용 회수 불가
+- 방향 예측 불가 (상승 49.5~49.8%)
+- 83.2%의 anomaly가 14분 이하 → 거래비용 회수 불가
 
 **포지션 청산(flat) 전략**이 현실적:
 - 방향을 맞출 필요 없음 (불확실할 때 빠지는 것)
@@ -303,15 +205,19 @@ Anomaly 감지 시 **포지션 전환(롱↔숏)**은 다음 이유로 부적합
 
 ---
 
-## 10. Artifacts
+## 9. Artifacts
 
 ```
 lstm_ae/artifacts/
-├── model.pt                      # Trained model weights (Epoch 32, 7 features)
+├── model.pt                      # Trained model weights (main_60, 7 features)
+├── model_early_15.pt             # 장초반 15분 모델
+├── model_early_30.pt             # 장초반 30분 모델
 ├── scaler.pkl                    # StandardScaler (fit on IS, 7 features)
-├── threshold.json                # Threshold: 0.361667 (92.5th pctl)
-├── anomaly_signals_is.parquet    # IS signals (115,188 windows)
-└── anomaly_signals_oos.parquet   # OOS signals (86,391 windows)
+├── threshold.json                # main_60 threshold: 0.357368 (92.5th pctl)
+├── threshold_early_15.json       # 0.574284
+├── threshold_early_30.json       # 0.781801
+├── anomaly_signals_is.parquet    # IS signals (130,848 windows, 모델 3종 합산)
+└── anomaly_signals_oos.parquet   # OOS signals (98,136 windows, 모델 3종 합산)
 ```
 
 ### Signal Schema (`anomaly_signals_*.parquet`)
@@ -320,12 +226,12 @@ lstm_ae/artifacts/
 |---|---|---|
 | timestamp (index) | datetime | 1-min bar timestamp (ET) |
 | anomaly_score | float64 | Reconstruction error (MSE) |
-| is_anomaly | bool | score > 0.361667 |
+| is_anomaly | bool | score > threshold (main_60 = 0.357368) |
 | trade_date | date | Trading date |
 
 ---
 
-## 11. How to Run
+## 10. How to Run
 
 ```bash
 cd btc_project
@@ -342,8 +248,8 @@ python3 -m lstm_ae.inference --is
 
 ---
 
-## 12. Conclusion
+## 11. Conclusion
 
-BTC+VIXY LSTM Autoencoder는 BTC-only 대비 **복원 성능 33% 개선**, **고강도 변동성 탐지 16.9배**로 향상되었다. 그러나 Autoencoder 구조의 본질적 한계로 **방향 예측은 불가능**하며, 포지션 전환 전략은 거래비용 대비 수익성이 없다.
+BTC+VIXY LSTM Autoencoder는 장중 이상 구간을 안정적으로 탐지한다(IS 7.50% / OOS 7.10%). 그러나 Autoencoder 구조의 본질적 한계로 **방향 예측은 불가능**하며(상승 49.5~49.8%, corr ≈ 0), 에피소드의 83.2%가 14분 이하로 끝나 포지션 전환 전략은 거래비용 대비 수익성이 없다.
 
 LSTM-AE 모듈의 실전 역할은 **포지션 전환이 아닌 위험 구간 회피(청산)**이며, Trading 모듈에서 anomaly 감지 시 포지션 청산 → 해소 시 재진입 전략으로 Drawdown 감소 효과를 검증해야 한다.
