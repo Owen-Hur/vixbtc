@@ -1,0 +1,778 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HMM 선물 레버리지 롱/숏 포지션 파이프라인</title>
+  <style>
+    :root {
+      --blue: #2c5f8a;
+      --blue-l: #eaf2fb;
+      --blue-m: #aac4e0;
+      --green: #1a7a4a;
+      --green-l: #e8f5ee;
+      --red: #c0392b;
+      --red-l: #fdecea;
+      --yellow: #f0a500;
+      --yellow-l: #fef9e7;
+      --gray: #555;
+      --bg: #f4f6f9;
+      --white: #fff;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0
+    }
+
+    body {
+      font-family: 'Pretendard', 'Noto Sans KR', sans-serif;
+      background: var(--bg);
+      color: #222;
+      line-height: 1.8
+    }
+
+    .page {
+      max-width: 980px;
+      margin: 0 auto;
+      padding: 2.5rem 2rem 4rem
+    }
+
+    .doc-header {
+      background: linear-gradient(135deg, #1a3a5c, #2c5f8a);
+      color: #fff;
+      padding: 2.5rem 2rem;
+      border-radius: 12px;
+      margin-bottom: 2rem
+    }
+
+    .doc-header h1 {
+      font-size: 1.5rem;
+      font-weight: 700;
+      margin-bottom: .4rem
+    }
+
+    .doc-header .meta {
+      font-size: .88rem;
+      opacity: .8
+    }
+
+    .toc {
+      background: var(--white);
+      border: 1px solid #dde4ed;
+      border-radius: 10px;
+      padding: 1.2rem 1.6rem;
+      margin-bottom: 2rem
+    }
+
+    .toc h2 {
+      font-size: .95rem;
+      color: var(--blue);
+      margin-bottom: .6rem
+    }
+
+    .toc ol {
+      padding-left: 1.2rem
+    }
+
+    .toc li {
+      font-size: .9rem;
+      margin-bottom: .25rem
+    }
+
+    .toc a {
+      color: var(--blue);
+      text-decoration: none
+    }
+
+    .toc a:hover {
+      text-decoration: underline
+    }
+
+    .phase {
+      background: var(--white);
+      border-radius: 12px;
+      padding: 1.8rem;
+      margin-bottom: 1.5rem;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, .06)
+    }
+
+    .phase-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: .5rem;
+      background: var(--blue);
+      color: #fff;
+      font-size: .78rem;
+      font-weight: 700;
+      padding: .3rem .9rem;
+      border-radius: 20px;
+      margin-bottom: .8rem;
+      letter-spacing: .04em
+    }
+
+    .phase h2 {
+      font-size: 1.2rem;
+      color: #1a3a5c;
+      border-bottom: 2px solid var(--blue-m);
+      padding-bottom: .4rem;
+      margin-bottom: 1rem
+    }
+
+    .phase h3 {
+      font-size: 1rem;
+      color: var(--blue);
+      margin: 1.2rem 0 .5rem
+    }
+
+    .phase h4 {
+      font-size: .9rem;
+      color: var(--gray);
+      margin: .9rem 0 .3rem;
+      font-weight: 600
+    }
+
+    .callout {
+      border-radius: 8px;
+      padding: .9rem 1.1rem;
+      margin: .8rem 0;
+      font-size: .92rem
+    }
+
+    .cb {
+      background: var(--blue-l);
+      border-left: 4px solid var(--blue)
+    }
+
+    .cg {
+      background: var(--green-l);
+      border-left: 4px solid var(--green)
+    }
+
+    .cr {
+      background: var(--red-l);
+      border-left: 4px solid var(--red)
+    }
+
+    .cy {
+      background: var(--yellow-l);
+      border-left: 4px solid var(--yellow)
+    }
+
+    .ct {
+      font-weight: 700;
+      margin-bottom: .3rem
+    }
+
+    pre {
+      background: #1e1e2e;
+      color: #cdd6f4;
+      border-radius: 8px;
+      padding: 1.1rem 1.3rem;
+      overflow-x: auto;
+      font-size: .83rem;
+      margin: .7rem 0;
+      line-height: 1.65
+    }
+
+    code {
+      background: #e8edf4;
+      color: var(--red);
+      padding: .1rem .35rem;
+      border-radius: 4px;
+      font-size: .87rem
+    }
+
+    pre code {
+      background: none;
+      color: inherit;
+      padding: 0;
+      font-size: inherit
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: .8rem 0;
+      font-size: .88rem
+    }
+
+    th {
+      background: var(--blue);
+      color: #fff;
+      padding: .55rem .9rem;
+      text-align: left
+    }
+
+    td {
+      border: 1px solid #dde4ed;
+      padding: .5rem .9rem;
+      background: var(--white)
+    }
+
+    tr:nth-child(even) td {
+      background: #f7fafd
+    }
+
+    .flow {
+      background: #1e1e2e;
+      color: #a6e3a1;
+      border-radius: 8px;
+      padding: 1.1rem 1.4rem;
+      font-family: monospace;
+      font-size: .86rem;
+      line-height: 1.9;
+      margin: .7rem 0
+    }
+
+    .compare {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: .8rem;
+      margin: .8rem 0
+    }
+
+    .box {
+      border-radius: 8px;
+      padding: .9rem 1.1rem
+    }
+
+    .box-exp {
+      background: #e8f5ee;
+      border: 1px solid #86c9a4
+    }
+
+    .box-rol {
+      background: #eaf2fb;
+      border: 1px solid var(--blue-m)
+    }
+
+    .box .lbl {
+      font-size: .75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .05em;
+      color: #555;
+      margin-bottom: .4rem
+    }
+
+    .steps {
+      counter-reset: step;
+      list-style: none;
+      padding: 0
+    }
+
+    .steps li {
+      counter-increment: step;
+      display: flex;
+      gap: .8rem;
+      padding: .5rem 0;
+      border-bottom: 1px solid #eee;
+      font-size: .9rem
+    }
+
+    .steps li::before {
+      content: counter(step);
+      background: var(--blue);
+      color: #fff;
+      min-width: 1.5rem;
+      height: 1.5rem;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: .78rem;
+      font-weight: 700;
+      flex-shrink: 0;
+      margin-top: .1rem
+    }
+
+    .file-tree {
+      background: #1e1e2e;
+      color: #cdd6f4;
+      border-radius: 8px;
+      padding: 1.1rem 1.4rem;
+      font-family: monospace;
+      font-size: .85rem;
+      line-height: 1.9;
+      margin: .7rem 0
+    }
+
+    .open-q {
+      list-style: none;
+      padding: 0
+    }
+
+    .open-q li {
+      display: flex;
+      gap: .8rem;
+      padding: .6rem 0;
+      border-bottom: 1px solid #eee;
+      font-size: .9rem;
+      align-items: flex-start
+    }
+
+    .q-num {
+      background: var(--yellow);
+      color: #fff;
+      min-width: 1.5rem;
+      height: 1.5rem;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: .78rem;
+      font-weight: 700;
+      flex-shrink: 0;
+      margin-top: .15rem
+    }
+
+    hr {
+      border: none;
+      border-top: 1px solid #e0e6ef;
+      margin: 1.4rem 0
+    }
+
+    .doc-footer {
+      text-align: center;
+      color: #999;
+      font-size: .8rem;
+      margin-top: 2.5rem
+    }
+  </style>
+</head>
+
+<body>
+  <div class="page">
+
+    <div class="doc-header">
+      <h1>🤖 HMM 선물 레버리지 롱/숏 포지션 파이프라인 초안</h1>
+      <div class="meta">
+        범위: BTC/USDT 무기한 선물 — 레버리지 롱·숏·중립 포지션 결정 모듈 (LSTM AE 이상탐지와 분리) &nbsp;|&nbsp;
+        목적: Rolling / Expanding Walk-Forward 양쪽 검증 포함
+      </div>
+    </div>
+
+    <div class="toc">
+      <h2>📑 목차</h2>
+      <ol>
+        <li><a href="#overview">전체 구조</a></li>
+        <li><a href="#phase0">Phase 0 — 데이터 수집 및 저장</a></li>
+        <li><a href="#phase1">Phase 1 — Feature Engineering</a></li>
+        <li><a href="#phase2">Phase 2 — HMM 학습</a></li>
+        <li><a href="#phase3">Phase 3 — Walk-Forward Grid Search</a></li>
+        <li><a href="#phase4">Phase 4 — OOS 성과 비교</a></li>
+        <li><a href="#phase5">Phase 5 — 일별 추론 파이프라인</a></li>
+        <li><a href="#files">구현 파일 구조</a></li>
+        <li><a href="#open">미결 사항</a></li>
+      </ol>
+    </div>
+
+    <!-- OVERVIEW -->
+    <div class="phase" id="overview">
+      <span class="phase-badge">전체 구조</span>
+      <h2>파이프라인 개요</h2>
+      <div class="flow">[Phase 0] 데이터 수집 및 저장<br />
+        ↓<br />
+        [Phase 1] Feature Engineering<br />
+        ↓<br />
+        [Phase 2] HMM 학습 (State 구조 결정)<br />
+        ↓<br />
+        [Phase 3] Walk-Forward Grid Search (θ 최적화)<br />
+        ├── 3A. Expanding Window<br />
+        └── 3B. Rolling Window<br />
+        ↓<br />
+        [Phase 4] OOS 성과 비교 → 방식 선택<br />
+        ↓<br />
+        [Phase 5] 일별 추론 파이프라인 (실전)</div>
+    </div>
+
+    <!-- PHASE 0 -->
+    <div class="phase" id="phase0">
+      <span class="phase-badge">Phase 0</span>
+      <h2>데이터 수집 및 저장</h2>
+
+      <h3>수집 대상</h3>
+      <table>
+        <tr>
+          <th>데이터</th>
+          <th>소스</th>
+          <th>해상도</th>
+          <th>용도</th>
+        </tr>
+        <tr>
+          <td>VIX_9d, 30d, 3m, 6m</td>
+          <td>CBOE</td>
+          <td>일봉</td>
+          <td>모든 feature 계산 기반</td>
+        </tr>
+        <tr>
+          <td>BTC/USDT <strong>무기한 선물</strong> (OHLCV)</td>
+          <td>Binance Futures</td>
+          <td>일봉</td>
+          <td>백테스트 수익률 계산 (레버리지 롱·숏·중립)</td>
+        </tr>
+        <tr>
+          <td>펀딩비율 (Funding Rate)</td>
+          <td>Binance Futures</td>
+          <td>8시간봉 → 일 합산</td>
+          <td>목적함수 내 보유 비용 반영</td>
+        </tr>
+        <tr>
+          <td>Open Interest (OI)</td>
+          <td>Binance Futures</td>
+          <td>일봉</td>
+          <td>보조 feature (선택적 포함)</td>
+        </tr>
+      </table>
+
+      <h3>저장 구조</h3>
+      <div class="file-tree">data/<br />
+        ├── vix_daily.csv &nbsp;&nbsp;&nbsp;# 날짜 | VIX_9d | VIX_30d | VIX_3m | VIX_6m<br />
+        ├── btc_futures.csv &nbsp;# 날짜 | open | close | return_pct (선물 기준)<br />
+        └── funding_rate.csv # 날짜 | funding_8h_1 | funding_8h_2 | funding_8h_3 | daily_funding</div>
+
+      <h3>타임라인 설정 (예시 — 조정 가능)</h3>
+      <div class="flow">전체: 2024.01.15 ~ 2025.05.14 (약 330 거래일)<br />
+
+        IS : 2024.01.15 ~ 2025.02.14 (약 270일, 82%)<br />
+        OOS : 2025.02.15 ~ 2025.05.14 (약 60일, 18%) ← 절대 건드리지 않음</div>
+    </div>
+
+    <!-- PHASE 1 -->
+    <div class="phase" id="phase1">
+      <span class="phase-badge">Phase 1</span>
+      <h2>Feature Engineering</h2>
+      <p style="margin-bottom:.8rem">매일 장 시작 전 다음 순서로 계산:</p>
+
+      <h3>1-1. 변화량 계산 (ΔVIX)</h3>
+      <pre><code>df['ΔVIX_9d']  = df['VIX_9d'].diff()
+df['ΔVIX_30d'] = df['VIX_30d'].diff()
+df['ΔVIX_3m']  = df['VIX_3m'].diff()
+df['ΔVIX_6m']  = df['VIX_6m'].diff()</code></pre>
+
+      <h3>1-2. PCA 변환 — IS 구간에서 fit 후 고정</h3>
+      <div class="callout cb">
+        <div class="ct">⚠️ scaler·pca 객체는 IS에서 한 번만 fit하고 저장. 매일 predict 시 동일 객체 재사용.</div>
+      </div>
+      <pre><code>from sklearn.preprocessing import StandardScaler
+from sklearn.decomposition import PCA
+
+delta_cols = ['ΔVIX_9d', 'ΔVIX_30d', 'ΔVIX_3m', 'ΔVIX_6m']
+
+scaler = StandardScaler().fit(is_data[delta_cols])        # → scaler.pkl 저장
+pca    = PCA(n_components=2).fit(scaler.transform(is_data[delta_cols]))  # → pca.pkl 저장
+
+transformed  = pca.transform(scaler.transform(df[delta_cols]))
+df['pca1']   = transformed[:, 0]   # Level 요인 (96.17%)
+df['pca2']   = transformed[:, 1]   # Slope 요인 (3.51%)</code></pre>
+
+      <h3>1-3. slope 및 delta_slope</h3>
+      <pre><code>df['slope']       = df['VIX_9d'] - df['VIX_30d']
+df['delta_slope'] = df['slope'].diff()</code></pre>
+
+      <h3>1-4. 절대 수준</h3>
+      <pre><code>df['vix_30d_level'] = df['VIX_30d']</code></pre>
+
+      <h3>최종 Feature Vector</h3>
+      <pre><code>FEATURES = ['pca1', 'pca2', 'delta_slope', 'vix_30d_level']
+# slope는 pca2와 심각하게 중복 → 제외</code></pre>
+
+      <h3>다중공선성 확인 (1회)</h3>
+      <pre><code>from statsmodels.stats.outliers_influence import variance_inflation_factor
+# VIF > 5: 주의, VIF > 10: 반드시 제거</code></pre>
+
+      <table>
+        <tr>
+          <th>Feature</th>
+          <th>역할</th>
+          <th>포함 근거</th>
+        </tr>
+        <tr>
+          <td><code>pca1</code></td>
+          <td>Level 변화 요인</td>
+          <td>4개 만기 공통 움직임 압축 (96.17%)</td>
+        </tr>
+        <tr>
+          <td><code>pca2</code></td>
+          <td>Slope 변화 요인</td>
+          <td>논문 핵심, slope와 중복 → slope 대체</td>
+        </tr>
+        <tr>
+          <td><code>delta_slope</code></td>
+          <td>기울기 가속도</td>
+          <td>단기 패닉 가속/둔화 탐지</td>
+        </tr>
+        <tr>
+          <td><code>vix_30d_level</code></td>
+          <td>절대 공포 수준</td>
+          <td>pca1/2가 못 잡는 역사적 극단값</td>
+        </tr>
+      </table>
+    </div>
+
+    <!-- PHASE 2 -->
+    <div class="phase" id="phase2">
+      <span class="phase-badge">Phase 2</span>
+      <h2>HMM 학습 — State 구조 결정</h2>
+
+      <h3>2-1. IS 전체로 HMM 학습</h3>
+      <pre><code>from hmmlearn.hmm import GaussianHMM
+
+hmm = GaussianHMM(
+    n_components=3,
+    covariance_type='diag',   # 다중공선성 영향 최소화
+    n_iter=200,
+    random_state=42
+)
+hmm.fit(is_features)   # → hmm.pkl 저장</code></pre>
+
+      <h3>2-2. State 레이블 고정 (필수)</h3>
+      <div class="callout cr">
+        <div class="ct">🔴 HMM은 매 학습마다 State 번호가 무작위로 바뀜 — 반드시 후처리 필요</div>
+        <p>EM 알고리즘의 무작위 초기값으로 인해 같은 데이터로 학습해도 State 0이 공포일 수도, 정상일 수도 있음.</p>
+      </div>
+      <pre><code>import numpy as np
+
+state_means = []
+for k in range(3):
+    mask = (hmm.predict(is_features) == k)
+    state_means.append(is_data.loc[mask, 'vix_30d_level'].mean())
+
+order = np.argsort(state_means)   # 낮은 VIX → 높은 VIX 순
+# order[0]=정상(Normal), order[1]=경계(Alert), order[2]=공포(Fear)
+
+STATE_MAP = {order[0]: 'normal', order[1]: 'alert', order[2]: 'fear'}
+# → state_map.pkl 저장</code></pre>
+
+      <div class="callout cb">
+        <div class="ct">📌 재학습 규칙</div>
+        <div class="flow" style="margin-top:.4rem">HMM 재학습(hmm.fit)<br />→ STATE_MAP 반드시 재계산<br />→ state_map.pkl 갱신
+          매일 추론(hmm.predict)<br />→ 저장된 STATE_MAP 그대로 사용</div>
+      </div>
+
+      <h3>2-3. State 분류 시각화 (검수)</h3>
+      <pre><code>states = [STATE_MAP[s] for s in hmm.predict(is_features)]
+# 날짜별 State 분포 & VIX 수준과 State 일치 여부 확인</code></pre>
+    </div>
+
+    <!-- PHASE 3 -->
+    <div class="phase" id="phase3">
+      <span class="phase-badge">Phase 3</span>
+      <h2>Walk-Forward Grid Search — θ 최적화</h2>
+
+      <h3>파라미터 공간 (θ)</h3>
+      <div class="callout cb" style="margin-bottom:.6rem">
+        <div class="ct">📌 BTC/USDT 무기한 선물 기준 — 레버리지 롱/숏/중립, 음수 = 숏 포지션</div>
+        <p>+2.0 = 2배 롱 &nbsp;|&nbsp; +1.0 = 1배 롱 &nbsp;|&nbsp; 0.0 = 중립(현금) &nbsp;|&nbsp; −1.0 = 1배 숏 &nbsp;|&nbsp; −2.0 = 2배 숏</p>
+      </div>
+      <pre><code>param_grid = {
+    'p_fear_min':   [0.55, 0.65, 0.75, 0.85],   # 공포 State 확정 posterior 최솟값
+    'p_alert_min':  [0.50, 0.60, 0.70],           # 경계 State 확정 posterior 최솟값
+    'lev_fear':     [-2.0, -1.0, -0.5, 0.0],      # 공포 시 레버리지 (숏 허용)
+    'lev_alert':    [-0.5, 0.0, 0.5, 1.0],        # 경계 시 레버리지
+    'lev_normal':   [1.0, 1.5, 2.0],              # 정상 시 레버리지 (롱)
+    'max_leverage': [1.0, 2.0, 3.0],              # 절대 레버리지 상한 (청산 방지)
+}
+# 총 조합: 4×3×4×4×3×3 = 1,728가지
+# 계산 부담 시 lev_* 후보 축소 또는 random search 병행 권장</code></pre>
+
+      <h3>목적함수</h3>
+      <div class="callout cb" style="margin-bottom:.5rem">
+        <div class="ct">📌 선물 전용 비용 항목 추가: 펀딩비 + 레버리지 증거금 비용</div>
+      </div>
+      <pre><code>def objective(returns, n_trades, leverage_series, funding_series):
+    """
+    returns        : 일별 전략 수익률 (레버리지 반영)
+    n_trades       : 포지션 전환 횟수
+    leverage_series: 일별 레버리지 절댓값 시리즈
+    funding_series : 일별 펀딩비율 (8h × 3 합산)
+    """
+    sharpe = returns.mean() / returns.std() * np.sqrt(252)
+    mdd    = max_drawdown(returns)
+
+    # 거래비용: 선물 taker fee 4bp (편도)
+    trade_cost = n_trades * 0.0004
+
+    # 펀딩비 비용: 보유 레버리지 × 당일 펀딩비율
+    # 롱이면 funding > 0일 때 지불, 숏이면 수취
+    funding_cost = (leverage_series * funding_series).sum()
+
+    # 청산 리스크 패널티: 레버리지 > max_leverage 구간 비율
+    liq_penalty = (leverage_series > param['max_leverage']).mean() * 2.0
+
+    return sharpe - 0.5 * abs(mdd) - 0.3 * trade_cost - 0.4 * funding_cost - liq_penalty</code></pre>
+
+      <hr>
+
+      <div class="compare">
+        <div class="box box-exp">
+          <div class="lbl">3A. Expanding Window</div>
+          <p style="font-size:.85rem;margin-bottom:.5rem">학습 구간이 매 Round마다 확장. 데이터 많을수록 안정적.</p>
+          <pre><code>rounds = [
+  {'train': ['2024-01':'2024-06'],
+   'val':   ['2024-07':'2024-09']},
+  {'train': ['2024-01':'2024-09'],
+   'val':   ['2024-10':'2024-12']},
+  {'train': ['2024-01':'2024-12'],
+   'val':   ['2025-01':'2025-02']},
+]</code></pre>
+        </div>
+        <div class="box box-rol">
+          <div class="lbl">3B. Rolling Window</div>
+          <p style="font-size:.85rem;margin-bottom:.5rem">학습 구간 크기 고정(6개월). 최신 패턴에 더 민감.</p>
+          <pre><code>rounds = [
+  {'train': ['2024-01':'2024-06'],
+   'val':   ['2024-07':'2024-09']},
+  {'train': ['2024-04':'2024-09'],
+   'val':   ['2024-10':'2024-12']},
+  {'train': ['2024-07':'2024-12'],
+   'val':   ['2025-01':'2025-02']},
+]</code></pre>
+        </div>
+      </div>
+
+      <pre><code>results = []
+for r in rounds:
+    best_theta, best_score = grid_search(r['train'], r['val'], param_grid)
+    results.append(best_theta)
+
+theta_final = median_params(results)   # → theta_final.pkl 저장</code></pre>
+
+      <h3>θ 안정성 확인 (과적합 진단)</h3>
+      <pre><code>for param in param_grid.keys():
+    values = [r[param] for r in results]
+    print(f"{param}: {values}")
+# Round 간 분산 작을수록 신뢰도 높음</code></pre>
+    </div>
+
+    <!-- PHASE 4 -->
+    <div class="phase" id="phase4">
+      <span class="phase-badge">Phase 4</span>
+      <h2>OOS 성과 비교 → 방식 선택</h2>
+
+      <pre><code>perf_expanding = backtest(oos_data, theta_expanding, hmm, STATE_MAP)
+perf_rolling   = backtest(oos_data, theta_rolling,   hmm, STATE_MAP)
+# IS/OOS 비율 > 1.5이면 과적합 의심</code></pre>
+
+      <h3>선택 기준</h3>
+      <table>
+        <tr>
+          <th>지표</th>
+          <th>우선순위</th>
+        </tr>
+        <tr>
+          <td>OOS Sharpe 높은 쪽</td>
+          <td>1순위</td>
+        </tr>
+        <tr>
+          <td>IS/OOS 비율 낮은 쪽 (과적합 적음)</td>
+          <td>2순위</td>
+        </tr>
+        <tr>
+          <td>θ Round 간 분산 낮은 쪽</td>
+          <td>3순위</td>
+        </tr>
+      </table>
+    </div>
+
+    <!-- PHASE 5 -->
+    <div class="phase" id="phase5">
+      <span class="phase-badge">Phase 5</span>
+      <h2>일별 추론 파이프라인 (실전)</h2>
+      <p style="margin-bottom:.8rem">매일 미국 장 시작 전 (한국 시간 기준 밤 10:30 이전) — Binance Futures 기준:</p>
+
+      <ol class="steps">
+        <li><strong>입력</strong>: 오늘 VIX_9d, VIX_30d, VIX_3m, VIX_6m + 직전 8시간봉 펀딩비율 3개</li>
+        <li>DB에서 어제 VIX 4개 로드</li>
+        <li>ΔVIX 4개 계산</li>
+        <li>저장된 scaler → pca 변환 적용</li>
+        <li>delta_slope 계산 / vix_30d_level 할당</li>
+        <li>feature vector = <code>[pca1, pca2, delta_slope, vix_30d_level]</code></li>
+        <li>HMM posterior 계산 → <code>[P(정상), P(경계), P(공포)]</code></li>
+        <li>최적 θ로 <strong>레버리지 신호</strong> 매핑:
+          <div class="flow" style="margin-top:.4rem">if P(공포) &gt; p_fear_min:
+    lev_signal = lev_fear   # 예: −1.0 (1배 숏)
+elif P(경계) &gt; p_alert_min:
+    lev_signal = lev_alert  # 예:  0.0 (중립)
+else:
+    lev_signal = lev_normal # 예: +2.0 (2배 롱)
+
+# 절대 레버리지 상한 클리핑
+lev_signal = np.clip(lev_signal, -max_leverage, +max_leverage)</div>
+        </li>
+        <li>현재 보유 포지션 대비 방향·크기 변경 시 주문 실행:
+          <div class="flow" style="margin-top:.4rem">lev_signal &gt; 0 → BTC LONG  (레버리지 = lev_signal)
+lev_signal &lt; 0 → BTC SHORT (레버리지 = |lev_signal|)
+lev_signal = 0 → 포지션 전량 청산 (NEUTRAL)</div>
+        </li>
+      </ol>
+      <div class="callout cg" style="margin-top:.8rem">
+        <div class="ct">✅ Step 9: 레버리지 신호 출력 → 09:30 ET 시가 기준 시장가 진입 / 청산</div>
+      </div>
+      <div class="callout cr" style="margin-top:.6rem">
+        <div class="ct">🔴 리스크 관리 필수 체크</div>
+        <p>① 잔여 마진 &lt; 유지증거금 × 1.5 시 강제 레버리지 축소<br />
+        ② 일중 BTC 변동률 &gt; 8% 시 포지션 즉시 재평가<br />
+        ③ 펀딩비율 &gt; +0.1% (롱) 또는 &lt; −0.1% (숏) 시 비용 알림</p>
+      </div>
+    </div>
+
+    <!-- FILES -->
+    <div class="phase" id="files">
+      <span class="phase-badge">구현 파일 구조</span>
+      <h2>hmm_module/ 파일 구조 제안</h2>
+      <div class="file-tree">hmm_module/<br />
+        ├── config.py &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;# FEATURES, param_grid, 타임라인 상수, max_leverage<br />
+        ├── data_loader.py &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;# VIX, BTC 선물 OHLCV, 펀딩비율 로드 및 저장<br />
+        ├── feature_engineer.py &nbsp;# ΔVIX, PCA, slope, delta_slope 계산<br />
+        ├── hmm_trainer.py &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;# HMM fit + State 레이블 정렬<br />
+        ├── grid_search.py &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;# objective function (펀딩비·레버리지 비용 포함) + grid search<br />
+        ├── walk_forward.py &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;# Expanding / Rolling 라운드 실행<br />
+        ├── oos_evaluator.py &nbsp;&nbsp;&nbsp;&nbsp;# OOS 백테스트 + 롱·숏·중립 성과 분리 리포트<br />
+        ├── risk_manager.py &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;# 레버리지 클리핑, 마진 체크, 청산 방지 로직<br />
+        ├── daily_inference.py &nbsp;&nbsp;# 실전 추론 (Step 1~9) → 레버리지 신호 출력<br />
+        └── artifacts/<br />
+        &nbsp;&nbsp;&nbsp;&nbsp;├── scaler.pkl &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;# 학습 시 저장 (IS fit, 고정)<br />
+        &nbsp;&nbsp;&nbsp;&nbsp;├── pca.pkl &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;# 학습 시 저장 (IS fit, 고정)<br />
+        &nbsp;&nbsp;&nbsp;&nbsp;├── hmm.pkl &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;# 학습 시 저장<br />
+        &nbsp;&nbsp;&nbsp;&nbsp;├── state_map.pkl &nbsp;&nbsp;# State 레이블 매핑 (재학습 시 갱신)<br />
+        &nbsp;&nbsp;&nbsp;&nbsp;└── theta_final.pkl # 선택된 최적 θ (lev_fear/alert/normal, max_leverage)</div>
+    </div>
+
+    <!-- OPEN QUESTIONS -->
+    <div class="phase" id="open">
+      <span class="phase-badge">미결 사항</span>
+      <h2>추후 논의 필요 항목</h2>
+      <div class="callout cy">
+        <div class="ct">⚠️ 아래 사항은 결정 전까지 기본값으로 진행</div>
+      </div>
+      <ul class="open-q">
+        <li><span class="q-num">1</span>
+          <div><strong>최대 레버리지 상한 설정</strong>: <code>max_leverage</code> 후보 [1×, 2×, 3×] — 거래소 청산 마진율과 연동하여 안전 상한 결정 필요</div>
+        </li>
+        <li><span class="q-num">2</span>
+          <div><strong>공포 State 숏 진입 여부</strong>: <code>lev_fear = −1.0</code>(숏 진입) vs <code>0.0</code>(중립) — 공포 구간의 BTC 반등 리스크 vs 하락 수익 트레이드오프</div>
+        </li>
+        <li><span class="q-num">3</span>
+          <div><strong>펀딩비율 이상 시 대응</strong>: 펀딩비 > 0.1% 구간에서 롱 레버리지 자동 축소 규칙 적용 여부 (비용 패널티 강화 vs 신호 무결성 유지)</div>
+        </li>
+        <li><span class="q-num">4</span>
+          <div><strong>HMM 재학습 주기</strong>: 월 1회 전체 재학습 vs 온라인 학습(누적) 유지 — 선물 시장 구조 변화(펀딩비 레짐) 반영 속도 고려</div>
+        </li>
+        <li><span class="q-num">5</span>
+          <div><strong>파라미터 탐색 규모</strong>: 1,728개 조합 전수 탐색 vs Random Search(200회) + Bayesian Optimization 2단계 방식 비교 — 계산 예산 결정 필요</div>
+        </li>
+        <li><span class="q-num">6</span>
+          <div><strong>LSTM AE 연동</strong>: HMM 공포 State 확정 시 LSTM AE 이상탐지 임계값을 동적으로 낮추어 조기 청산 트리거 강화 방안 (현재 분리 운영)</div>
+        </li>
+      </ul>
+    </div>
+
+    <div class="doc-footer">VIX BTC Project — HMM Futures L/S Pipeline Draft v2 &nbsp;|&nbsp; 현물 → 선물 레버리지 롱/숏 전환</div>
+  </div>
+</body>
+
+</html>

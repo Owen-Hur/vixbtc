@@ -1,0 +1,25 @@
+{
+  "forward_minutes": 15,
+  "features": [
+    "anomaly_score",
+    "trade_imbalance",
+    "trade_count",
+    "avg_trade_size",
+    "btc_return",
+    "btc_return_5m",
+    "btc_return_15m",
+    "btc_volatility_15m",
+    "btc_momentum",
+    "vixy_return",
+    "vixy_rolling_std",
+    "vixy_btc_corr",
+    "minutes_from_open"
+  ],
+  "is_accuracy": 0.7226704316256555,
+  "is_val_accuracy": 0.4954637096774194,
+  "oos_accuracy": 0.5077826725403818,
+  "is_samples": 9916,
+  "oos_samples": 6810,
+  "is_up_ratio": 0.5239007664380799,
+  "oos_up_ratio": 0.5101321585903084
+}
