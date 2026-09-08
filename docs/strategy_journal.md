@@ -74,11 +74,11 @@ LSTM + GARCH 하이브리드가 크립토 변동성 예측에 효과적이라는
 
 ### 결과 (Walk-Forward 7라운드, 2024-10 ~ 2026-05)
 
-- 전략: +41.9%, Sharpe 0.69
-- B&H: +21.2%
-- 초과수익: +20.7%p
-- Short hit rate: 59.6%
-- 파라미터: sw=3~4, lw=70~80, qh=0.80~0.85
+- 탐색된 파라미터 범위: sw=3~4, lw=70~80, qh=0.80~0.85
+
+> **v1의 성과 수치는 이 문서에서 삭제했다.** 당시 코드가 저장소에 남아 있지 않아 값을 재현할 수 없기 때문이다.
+> 이 단계에서 B&H를 넘는 결과가 나와 다음 단계로 진행했다는 사실만 기록으로 남기며,
+> 확인 가능한 확정값은 4단계(편향 제거판)의 결과뿐이다.
 
 ### 숨겨진 문제들
 
@@ -176,7 +176,7 @@ WF 22라운드에서 파라미터가 sw 2↔4, lw 21↔60↔70, qh 0.75↔0.85�
 
 **2단계 논문 5편 분석**: 외부 시그널의 구조적 한계 확인 → 내부 시그널(RV)로 전환 근거 확보
 
-**3단계 RV Regime v1**: Sharpe 0.69, B&H+20.7%p → 유망해 보였으나 편향 내재
+**3단계 RV Regime v1**: B&H 초과수익이 나와 유망해 보였으나 편향 내재 (수치는 재현 불가로 삭제)
 
 **4단계 RV Regime v2 (편향 수정)**: percentile 수정 + 펀딩 반영 → Sharpe 0.02, B&H-109%p → 알파 소멸
 
@@ -201,7 +201,17 @@ WF 22라운드에서 파라미터가 sw 2↔4, lw 21↔60↔70, qh 0.75↔0.85�
 - 펀딩레이트: Binance, 2020-01 ~ 2026-05 (7,018 레코드, 8시간 간격)
 - 거래일 정의: CME 관례 (T-1 17:00 ET ~ T 16:59 ET)
 - 거래비용: Taker fee 0.04% (편도)
-- 코드: rv_regime/ 폴더 (Python, pandas/numpy)
+
+### 각 단계의 코드 위치
+
+| 단계 | 코드 |
+|---|---|
+| 4단계 RV Regime v2 (편향 제거) | `analysis/rv_regime/revised/` (`walk_forward.py`, `strategy.py`, `data_loader.py`, `config.py`) |
+| 5단계 고정 파라미터 | `analysis/other_signals/04_fixed_param_with_funding.py` |
+| 6단계 rv_ratio + 펀딩 결합 | `analysis/other_signals/05_rv_ratio_funding_combined.py` |
+| 펀딩레이트 수집 | `analysis/other_signals/01_download_funding_rate.py` |
+
+3단계(RV Regime v1)의 코드는 저장소에 남아 있지 않으며, 위 표의 코드로는 v1 수치를 재현할 수 없다.
 
 
 ## 참고 논문

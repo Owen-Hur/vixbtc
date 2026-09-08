@@ -1,17 +1,14 @@
 # LSTM Autoencoder Pipeline
 
-> ## ⚠️ 재실행 검증 노트 (2026-09-08)
+> ## 문서 기준 (2026-09-08 갱신)
 >
-> 이 문서는 **VIXY 피처 합류 이전**에 작성된 설계 초안입니다. 아래 세 가지는 현재 코드와 다릅니다.
-> **확정 명세는 `lstm_ae/config.py` 입니다.**
+> 이 문서는 VIXY 피처 합류 이전에 작성된 설계 초안이었습니다. **확정 명세인 `lstm_ae/config.py` 기준으로 정정** 했습니다.
 >
-> 1. **피처 개수**: 본문 §3.3은 "현재 BTC-only 4개 / VIXY 합류 후 7개 — 추가 예정"으로 기술하지만,
->    확정 구성은 **7개**입니다 —
->    `btc_return, trade_imbalance, trade_count, avg_trade_size, vixy_return, vixy_rolling_std, vixy_btc_corr`.
-> 2. **피처명**: 본문의 `vxx_return / vxx_rolling_std / vxx_btc_corr` 는 실제로 **`vixy_*`** 접두사입니다.
-> 3. **모델 개수**: 본문은 60분 단일 모델만 기술하지만, 실제 추론은 **모델 3개**를 사용합니다 —
->    `main_60`(threshold 0.357368) + 장초반(09:45~10:28) 전용 `early_15`(0.574284) · `early_30`(0.781801).
->    `config.EARLY_WINDOW_SIZES = [15, 30]`, encoder/decoder hidden `[32,16]`/`[16,32]`, latent 16.
+> - **피처**: 확정 구성은 **7개** — `btc_return, trade_imbalance, trade_count, avg_trade_size, vixy_return, vixy_rolling_std, vixy_btc_corr`
+>   (초안의 `vxx_*` 접두사는 실제 코드에서 `vixy_*` 입니다).
+> - **모델 개수**: 실제 추론은 **모델 3개**를 사용합니다 —
+>   `main_60`(threshold 0.357368) + 장초반(09:45~10:28) 전용 `early_15`(0.574284) · `early_30`(0.781801).
+>   `config.EARLY_WINDOW_SIZES = [15, 30]`, encoder/decoder hidden `[32,16]`/`[16,32]`, latent 16.
 >
 > 재현 확인: `python -m lstm_ae.inference [--is]` 실행 시 커밋된 signal parquet이
 > **판정 불일치 0건**으로 재생성됩니다(IS 130,848 / OOS 98,136 windows).
@@ -50,7 +47,7 @@ Output: anomaly_signals.parquet (timestamp, score, is_anomaly, trade_date)
 
 [3] 피처 계산 (lstm_ae/dataset.py)
     ├── BTC: btc_return, trade_imbalance, trade_count, avg_trade_size
-    ├── VIXY: vxx_return, vxx_rolling_std, vxx_btc_corr (합류 예정)
+    ├── VIXY: vixy_return, vixy_rolling_std, vixy_btc_corr
     └── StandardScaler 정규화
 
         ↓
@@ -127,9 +124,7 @@ Anomaly score = reconstruction error (MSE per window)
 | Threshold percentile | 92.5 | 상위 7.5% |
 | Train/Val split | 80/20 | 시간순 (랜덤 아님) |
 
-### 3.3 Input Features
-
-**현재 (BTC-only, 4개)**
+### 3.3 Input Features (7, 확정)
 
 | Feature | Description | Source |
 |---|---|---|
@@ -137,14 +132,9 @@ Anomaly score = reconstruction error (MSE per window)
 | `trade_imbalance` | 매수/매도 비율 (-1~+1) | 체결 is_buyer_maker |
 | `trade_count` | 1분간 체결 건수 | 체결 count |
 | `avg_trade_size` | 1분간 평균 체결 규모 | 체결 qty 평균 |
-
-**VIXY 합류 후 (7개)** — 추가 예정
-
-| Feature | Description | Source |
-|---|---|---|
-| `vxx_return` | VIXY 1분 수익률 | VIXY 분봉 |
-| `vxx_rolling_std` | VIXY 20분 rolling 표준편차 | VIXY 분봉 |
-| `vxx_btc_corr` | VIXY-BTC 20분 rolling 상관계수 | 계산 |
+| `vixy_return` | VIXY 1분 수익률 | VIXY 분봉 |
+| `vixy_rolling_std` | VIXY 20분 rolling 표준편차 | VIXY 분봉 |
+| `vixy_btc_corr` | VIXY-BTC 20분 rolling 상관계수 | 계산 |
 
 ---
 
@@ -236,29 +226,21 @@ Trading 모듈은 `anomaly_signals.parquet`을 읽어서 다음을 수행:
 | anomaly 강도 | `anomaly_score` (float) | 임계값 대비 배수로 활용 가능 |
 | 임계값 | `threshold.json` | 진입/해소 기준 |
 
-### 6.3 미확정 사항 (VIXY 합류 후 결정)
+### 6.3 결정 사항
 
-- **포지션 전환 vs 청산**: BTC-only 상태에서는 방향 예측 불가 → VIXY 합류 후 재평가
-- **최소 보유 시간**: 현재 5분 설정, 최적값은 VIXY 합류 후 재검토
-- **히스테리시스 임계값**: 진입/해소 임계값 분리 여부도 재검토 대상
+7 features 학습 후에도 anomaly 구간의 방향 예측은 불가능했다(상승 49.5~49.8%, `REPORT.md` §6.1).
+따라서 anomaly 시 행동은 **포지션 전환이 아닌 청산**으로 확정했다.
 
 ---
 
 ## 7. Walk-forward 설계
 
 ```
-1차: IS (2024.01~2025.04) → OOS (2025.05~2026.04)
-     관세 전 학습 모델이 관세 후에도 작동하는가?
-
-2차: OOS를 학습으로 전환 → OS (2026.05.10~, ~3주)
-     최근 시장 학습 모델의 실전 적용 가능성
+1차 (실행함): IS (2024.01~2025.04) → OOS (2025.05~2026.04)
+              결과는 `REPORT.md` 참조.
 ```
 
-| 결과 | 해석 |
-|---|---|
-| 둘 다 성공 | 전략이 시장 구조 변화에 강건 |
-| 1차만 실패 | 관세가 VIX-BTC 관계를 바꿨다는 증거 |
-| 2차만 실패 | OS 기간 부족 (통계적 한계) |
+2차(OS 실시간 수집분으로의 재학습)는 실행하지 않았으므로 이 저장소에 결과가 없다.
 
 ---
 
@@ -272,7 +254,7 @@ lstm_ae/
 ├── model.py           # LSTMAutoencoder 클래스
 ├── train.py           # 학습 루프 + 임계값 계산
 ├── inference.py       # 추론 + anomaly_signals 생성
-├── REPORT.md          # BTC-only baseline 결과 리포트
+├── REPORT.md          # IS/OOS 결과 리포트
 ├── PIPELINE.md        # 이 문서
 └── artifacts/
     ├── model.pt
@@ -288,5 +270,5 @@ lstm_ae/
 
 1. **scaler는 IS에서만 fit**: OOS/OS에서는 `transform`만 사용. 재학습 시에만 새로 fit.
 2. **window는 거래일 단위**: 교차일 window 없음. 전일 마지막 데이터와 당일 첫 데이터를 섞지 않음.
-3. **VIXY 합류 시 전체 재학습 필요**: n_features 변경 → scaler, model, threshold 모두 새로 생성.
+3. **n_features 변경 시 전체 재학습 필요**: scaler, model, threshold 모두 새로 생성해야 함.
 4. **OS 전처리 시 컬럼명 매핑**: 실시간 데이터는 과거와 컬럼명이 다름 (Section 2.3 참고).

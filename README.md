@@ -4,7 +4,9 @@
 > **거래 가능한 시차(lagged) 예측 채널은 존재하지 않는다.**
 > Lookahead bias를 구조적으로 배제한 설계에서 재검증한 결과, 초기에 관측된 "슬로프 변화율 60%대 적중" 알파는 **소멸**했다.
 >
-> 이 저장소의 모든 핵심 수치는 **2026-09-08에 코드를 실제로 재실행하여 검증**했습니다. → [재현 검증 결과표](#재현-검증-결과표-2026-09-08)
+> 이 README와 각 분석 문서가 제시하는 결론 수치는 **2026-09-08에 코드를 재실행해 확인했거나 커밋된 아티팩트에서 직접 읽은 값**입니다.
+> 검증을 시도했으나 생성 코드·아티팩트가 남아 있지 않아 확인할 수 없었던 수치는 **각주로 남기지 않고 문서에서 제거**했습니다.
+> → [재현 검증 결과표](#재현-검증-결과표-2026-09-08)
 
 ---
 
@@ -50,7 +52,7 @@ HMM 3-State(공포 / 경계 / 정상)로 레짐을 진단해 BTC 선물 롱/숏/
 BTC 체결 미시구조 + VIXY 1분봉으로 두 시장의 정상 관계를 학습해 두고,
 그 관계가 깨지는 순간(anomaly)을 장중에 포착해 **포지션을 선제적으로 조정**한다는 구상이었습니다.
 
-모듈 자체는 완성되었고, **변동성 탐지기로서는 잘 작동합니다.**
+모듈 자체는 완성되었고, 아래 사양·결과는 커밋된 아티팩트로 그대로 재현됩니다.
 
 | 항목 | 값 | 재실행 검증 |
 |---|---|---|
@@ -61,7 +63,7 @@ BTC 체결 미시구조 + VIXY 1분봉으로 두 시장의 정상 관계를 학�
 | 임계값 | IS anomaly score 92.5 percentile = **0.357368** | ✅ `artifacts/threshold.json` |
 | anomaly rate | IS 7.50% (8,640) / OOS 7.10% (6,134) | ✅ 추론 재실행 |
 | 방향 정보 | anomaly 구간 상승비율 **IS 49.8% / OOS 49.5%**, corr(score, 부호수익) ≈ 0.00 | ✅ 아티팩트에서 재계산 |
-| 변동성 탐지 | 고강도 anomaly 구간 변동성 **16.9배**, BTC-only 대비 val loss **-33%** | ⏭ 원 정의(측정창·"2x+" 기준)가 문서에 없어 재실행 미검증 |
+| 지속시간 | anomaly 에피소드의 **83.2%가 14분 이하** | ✅ 아티팩트에서 재계산 |
 
 ### ② 전환점 — 논문의 근거 수준과 최초 설계의 목표가 어긋나 있었다
 
@@ -70,8 +72,8 @@ BTC 체결 미시구조 + VIXY 1분봉으로 두 시장의 정상 관계를 학�
 
 즉, "실시간 이상탐지 → 장중 선제 대응"이라는 최초 설계는
 **논문이 실제로 뒷받침할 수 있는 주장의 해상도(일별·사후)를 넘어서 있었습니다.**
-LSTM-AE가 만들어낸 결과들도 같은 지점을 가리켰습니다 — 이상 구간을 잘 찾아내지만 **방향을 알려주지 않고**(상승:하락 = 50:50),
-탐지된 anomaly의 **83%가 14분 이하** 로 끝나 왕복 거래비용조차 회수하지 못했습니다.
+LSTM-AE가 만들어낸 결과들도 같은 지점을 가리켰습니다 — 이상 구간을 잘 찾아내지만 **방향을 알려주지 않고**(상승 비율 IS 49.8% / OOS 49.5%),
+탐지된 anomaly의 **83.2%가 14분 이하** 로 끝나 왕복 거래비용조차 회수하지 못했습니다.
 
 > **이 단계는 "모델 실패"가 아니라 "질문의 재정의 계기"였습니다.**
 > 실시간 개입이 통하지 않는다는 사실 자체보다 중요했던 것은,
@@ -120,8 +122,10 @@ slope_change < 0  →  Short BTC    (backwardation 방향 = risk-off)
 ```
 
 **편향 제거 이전의 결과는 매우 좋아 보였습니다.**
-2026-05-24 시점 전략 리포트는 OOS 적중률 65.0%, Net Return +457.6%, Sharpe 5.31 을 보고했습니다
-(→ [`docs/strategy_report_2026-05-24_superseded.md`](docs/strategy_report_2026-05-24_superseded.md), **폐기된 문서**).
+당시(2026-05-24) 리포트는 이 신호를 확정 전략으로 채택했습니다
+(→ [`docs/strategy_report_2026-05-24_superseded.md`](docs/strategy_report_2026-05-24_superseded.md), **폐기된 문서** —
+그 리포트의 백테스트 성과 수치는 생성 코드가 남아 있지 않아 재현할 수 없었고, 이 저장소에서 제거했습니다).
+재현 가능한 형태로 남아 있는 편향 대조군(당일 09:30→15:59 측정)은 OOS **61.8%** 입니다.
 
 이후 시간축을 **T-day 체계**로 재정의해 lookahead bias를 구조적으로 배제하고 재검증했습니다.
 
@@ -187,11 +191,13 @@ Bonferroni 보정(p < 0.0071) 후 OOS에서 50%를 유의하게 넘는 임계는
 
 VIX 채널이 닫혔으므로 BTC 자체의 실현변동성(Realized Volatility) 레짐으로 방향을 틀었습니다.
 
-- 초기 RV Regime 전략: Walk-Forward Sharpe 0.69, B&H 대비 +20.7%p — **그러나 3가지 편향 내재**
-  (① 당일 데이터를 포함한 expanding percentile ② 펀딩비 미반영 ③ 1.6년의 짧은 검증구간)
+- 초기(v1) RV Regime 전략은 유망해 보였으나 **3가지 편향이 내재** 해 있었습니다
+  (① 당일 데이터를 포함한 expanding percentile ② 펀딩비 미반영 ③ 1.6년의 짧은 검증구간).
+  v1의 원본 코드는 남아 있지 않아 당시 성과 수치는 이 저장소에 싣지 않습니다.
 - 편향 3개를 모두 제거하자 → **누적 -57.4%, Sharpe 0.02, MDD -84.7%, B&H(+51.6%) 대비 -109.0%p. 알파 소멸.**
   (22 WF 라운드, 2021-01 ~ 2026-05, 1,964일 — **재실행으로 완전 재현 확인**)
 - 고정 파라미터 검증(Train 2020-22 → OOS 2023-26, sw=4/lw=14/qh=0.60): OOS +89.4%, Sharpe 0.63이나 B&H 대비 -173.9%p
+  (생성 코드: [`analysis/other_signals/04_fixed_param_with_funding.py`](analysis/other_signals/04_fixed_param_with_funding.py))
 - 펀딩비 실측: 일평균 0.0328% → **연 ~12%**. 전략이 82.5% Long인 구조에서 얇은 엣지를 소멸시킵니다.
 
 → [`analysis/rv_regime/README_first_alpha_search.md`](analysis/rv_regime/README_first_alpha_search.md),
@@ -216,55 +222,54 @@ VIX 채널이 닫혔으므로 BTC 자체의 실현변동성(Realized Volatility)
 | Overnight 지속성 리포트 2종 | — | **바이트 단위 동일 재생성** | ✅ 완전 재현 |
 | vix_threshold 리포트 | OOS 통과 임계 0개, 베이스 48.6% | **바이트 단위 동일 재생성** | ✅ 완전 재현 |
 | RV Regime 편향 제거 후 | -57.4%, Sharpe 0.02, MDD -84.7%, -109.0%p | **동일** | ✅ 완전 일치 |
-| RV Regime 편향 이전 (v1) | +41.9%, Sharpe 0.69, +20.7%p | **+37.8%, Sharpe 0.66, +12.6%p** | ⚠️ 원본 v1 코드 미보존 → **근사 재구성** |
 | LSTM-AE anomaly signal (IS/OOS) | 130,848 / 98,136 windows | **동일 (score 최대 오차 2×10⁻⁷, 판정 불일치 0건)** | ✅ 완전 재현 |
-| LSTM-AE 임계값 | REPORT.md **0.361667** | artifacts **0.357368** | ⚠️ **REPORT.md가 구버전 → artifacts 채택** |
-| LSTM-AE OOS anomaly rate | REPORT.md 6.5% (5,616건) | **7.10% (6,134건)** | ⚠️ **REPORT.md가 구버전 → 정정** |
-| LSTM-AE anomaly 지속시간 ≤14분 비중 | 81% | **83.2% (IS·OOS 공통)** | ⚠️ 정정 |
+| LSTM-AE 임계값 | 구 REPORT.md **0.361667** | artifacts **0.357368** | ⚠️ **구버전 수치 → artifacts 값으로 문서 정정** |
+| LSTM-AE OOS anomaly rate | 구 REPORT.md 6.5% (5,616건) | **7.10% (6,134건)** | ⚠️ **구버전 수치 → 문서 정정** |
+| LSTM-AE anomaly 지속시간 ≤14분 비중 | 구 REPORT.md 81% | **83.2% (IS·OOS 공통)** | ⚠️ **구버전 수치 → 문서 정정** |
 | LSTM-AE 파라미터 수 | 65,223 | **65,223** (`model.pt` state_dict 실측) | ✅ 일치 |
 | anomaly 구간 방향 (상승:하락) | 50:50 | **IS 49.8% / OOS 49.5% 상승** | ✅ 일치 |
 | XGBoost 방향 분류기 OOS 정확도 | 50.8% | **50.78%** (`direction_meta.json`) | ✅ 일치 |
 | 잔차 모멘텀 OOS 15분 적중률 | 54.3% | **54.3%** (`residual_analysis.py` 재실행, 로그와 숫자 완전 일치) | ✅ 완전 재현 |
-| LSTM-AE 변동성 탐지 배수 (16.9x) / val loss -33% | REPORT.md | 원 측정 정의가 문서에 없음 | ⏭ **재실행 미검증** |
-| 확정 전략 65.0% / +457.6% / Sharpe 5.31 | STRATEGY_REPORT(2026-05-24) | 생성 백테스트 코드 미보존 | ❌ **재실행 불가** |
 
 ### 이번 재실행으로 확정한 사항 (이전 정리에서 미해결로 남겨둔 각주)
 
 1. **`STRATEGY_REPORT.md` vs `slope_change_report.md` 상충 → 후자가 확정.**
-   전자(2026-05-24)의 OOS 65.0% / +457.6% / Sharpe 5.31 은 lookahead 미제거 상태의 결과이며,
-   후자(2026-06-02, T-day 축)의 **50.4%** 가 유효한 값입니다. 전자를 생성한 백테스트 스크립트는 저장소에 남아 있지 않아
-   65.0%를 직접 재현할 수는 없었고, **재현 가능한 편향 대조군의 최댓값은 61.8%** (`compute_biased.py`, 동일 구간·동일 표본 n=123)입니다.
-   즉 65.0%는 그보다 더 완화된 조건(레버리지 스케일링·측정창 차이 등)에서 나온 값으로 보이며, 어느 쪽이든 **편향 제거 시 50.4%로 수렴** 한다는 결론은 동일합니다.
+   전자(2026-05-24)의 백테스트 성과는 lookahead 미제거 상태의 결과이고, 생성 스크립트도 남아 있지 않아 재현할 수 없어 문서에서 제거했습니다.
+   유효한 값은 후자(2026-06-02, T-day 축)의 **50.4%** 이며, **재현 가능한 편향 대조군의 최댓값은 61.8%** (`compute_biased.py`, 동일 구간·동일 표본 n=123)입니다.
 
 2. **LSTM-AE 임계값 0.361667 vs 0.3574 → 0.357368 확정.**
    저장소에 커밋된 `artifacts/threshold.json` · `model.pt` · `scaler.pkl` 로 추론을 재실행하면
    `anomaly_signals_is/oos.parquet` 이 **판정 불일치 0건으로 재현**됩니다.
-   `lstm_ae/REPORT.md` 본문의 0.361667 / score mean 0.2596 / OOS anomaly 6.5% 등은 **재학습 이전 버전의 수치**이며,
-   현재 저장된 아티팩트의 값은 threshold **0.357368**, IS score mean **0.2573**, OOS anomaly rate **7.10%** 입니다.
+   `lstm_ae/REPORT.md` 에 적혀 있던 0.361667 / score mean 0.2596 / OOS anomaly 6.5% 는 **재학습 이전 버전의 수치**여서
+   아티팩트 실측값(threshold **0.357368**, IS score mean **0.2573**, OOS anomaly rate **7.10%**)으로 교체했습니다.
    (`analysis/rv_regime/results/lstm_ae_residual_analysis.log` 의 "Anomaly windows: 6,134 (7.1%)" 도 아티팩트 쪽과 일치합니다.)
 
 3. **`PIPELINE.md` vs `REPORT.md` feature 개수 불일치 → 7개 확정.**
-   `PIPELINE.md` 는 VIXY 합류 **이전** 에 작성된 초안이라 "현재 BTC-only 4개 / VIXY 합류 후 7개 — 추가 예정",
-   피처명 `vxx_*` 로 기술되어 있습니다. 실제 코드(`lstm_ae/config.py`)의 확정값은
-   **7개 피처** (`btc_return, trade_imbalance, trade_count, avg_trade_size, vixy_return, vixy_rolling_std, vixy_btc_corr`) 입니다.
+   `PIPELINE.md` 는 VIXY 합류 **이전** 에 작성된 초안이라 피처를 4개 + `vxx_*` 로 기술하고 있었습니다.
+   실제 코드(`lstm_ae/config.py`)의 확정값인 **7개 피처**
+   (`btc_return, trade_imbalance, trade_count, avg_trade_size, vixy_return, vixy_rolling_std, vixy_btc_corr`)로 문서를 정정했습니다.
 
 4. **문서에 없던 사실 — 추론 파이프라인은 모델 3개를 사용합니다.**
    메인 60분 모델 외에 장초반(09:45~10:28) 전용 **15분 / 30분 모델** 이 별도 임계값(0.574284 / 0.781801)으로 함께 동작합니다.
    그래서 signal 파일의 총 window 수(IS 130,848)가 메인 모델 window 수(115,188)보다 큽니다. REPORT/PIPELINE 어느 쪽에도 기술되어 있지 않았습니다.
 
-### 재실행하지 못한 항목
+### 재현 자료가 없어 문서에서 제거한 항목
 
-- **`docs/strategy_report_2026-05-24_superseded.md` 의 백테스트 수치** (65.0% / +457.6% / Sharpe 5.31 / MDD -29.0% 등)
-  — 생성 스크립트가 저장소·원본 프로젝트 어디에도 남아 있지 않습니다. 폐기된 문서이므로 원문 수치를 그대로 보존하되 "재실행 미검증"으로 표기합니다.
-- **LSTM-AE 재학습** (val loss 0.2420 / epoch 32 / 학습시간 1,719초) — CPU 기준 ~29분 소요하여 실행하지 않고, 저장된 아티팩트로 **추론만** 검증했습니다.
-  (파라미터 수 65,223 은 `model.pt` state_dict에서 직접 세어 확인했습니다.)
-- **LSTM-AE §6.1 변동성 배수** (anomaly 2.3배 / 고강도 16.9배) 및 **BTC-only baseline 대비 val loss -33%**
-  — "고강도(2x+)"의 기준과 변동성 측정창이 REPORT.md에 명시되어 있지 않고, BTC-only(4 features) 모델 아티팩트도 저장소에 없습니다.
-  아티팩트로 1분 수익률 기준 재계산은 해봤으나 원 정의와 다를 수 있어 **재실행 미검증**으로 둡니다.
-  (다만 같은 계산에서 "방향 정보 없음"(상승 49.5~49.8%, corr ≈ 0)은 재확인되어 결론에는 영향이 없습니다.)
-- **RV Regime v1(편향 내재 버전)의 원본 코드** — 저장소에 편향 제거 버전만 있어, 문서 기술대로 재구성해 근사치를 얻었습니다(위 표 참조).
-  또한 `rv_regime/config.py` 는 원본 저장소에 커밋되어 있지 않아, 문서에 기재된 값(taker fee 0.04% 편도 등)으로 복원해 실행했습니다.
-- **`analysis/other_signals/` · `analysis/vix_response/`** 의 중간 단계 스크립트 — 결론에 직접 기여하지 않는 탐색 코드이므로 시간 관계상 스킵했습니다.
+아래 항목들은 재현할 코드·아티팩트가 남아 있지 않거나 측정 정의가 문서에 기록되어 있지 않아 확인할 수 없었습니다.
+"참고용"으로 남기지 않고 해당 수치와 그에 의존하던 서술을 문서에서 **삭제** 했습니다.
+
+- **`docs/strategy_report_2026-05-24_superseded.md` 의 확정 전략 백테스트 성과** — 생성 스크립트가 저장소·원본 프로젝트 어디에도 없습니다.
+  해당 문서에서는 성과 요약·레버리지 스케일링·비교군 섹션을 삭제하고, 재현이 확인된 장중 개입 실패 실험과 잔차 분해만 남겼습니다.
+- **LSTM-AE 학습 실행 기록** (val loss / epoch / 학습시간 / loss curve) — CPU 재학습을 수행하지 않아 확인하지 못했습니다.
+  대신 커밋된 아티팩트로 **추론을 재실행** 해 임계값·score 분포·anomaly 판정을 검증했고, 파라미터 수 65,223 은 `model.pt` state_dict에서 직접 세었습니다.
+- **LSTM-AE 변동성 배수(§6.1)와 BTC-only baseline 비교(§7)** — "고강도(2x+)" 기준과 변동성 측정창이 REPORT.md에 명시되어 있지 않고,
+  BTC-only(4 features) 모델 아티팩트도 저장소에 없습니다. 두 섹션을 삭제했습니다.
+  (같은 아티팩트에서 재계산한 "방향 정보 없음"(상승 49.5~49.8%, corr ≈ 0)은 확인되어 그대로 남겼습니다.)
+- **RV Regime v1(편향 내재 버전)의 성과 수치** — 저장소에 편향 제거 버전만 있어 원본 수치를 재현할 수 없습니다. v1 수치는 전부 삭제하고,
+  재현이 확인된 편향 제거판(Sharpe 0.02)만 남겼습니다. `rv_regime/config.py` 는 원본 저장소에 커밋되어 있지 않아
+  문서 기재값(taker fee 0.04% 편도 등)으로 복원해 실행했고, 복원한 파일은 출처 주석과 함께
+  [`analysis/rv_regime/revised/config.py`](analysis/rv_regime/revised/config.py) 로 포함했습니다.
+- **`analysis/other_signals/` · `analysis/vix_response/`** 의 중간 단계 탐색 스크립트 — 최종 결론에 직접 기여하지 않아 재실행하지 않았습니다.
 
 ---
 
@@ -276,7 +281,7 @@ VIX 채널이 닫혔으므로 BTC 자체의 실현변동성(Realized Volatility)
    시간별 Granger에서 명목 p≈0(동시성)과 진짜 예측 p=0.9954가 나란히 관측된 것이 그 대비입니다.
 3. **상관계수의 유의성은 거래 엣지를 보장하지 않는다.** p = 7.3×10⁻⁹ 이면서 적중률 49.7%가 실제로 관측됩니다.
 4. **미세한 편향들이 합쳐지면 가짜 알파를 만든다.** 같은 데이터에서 lookahead 제거 전 61.8% → 제거 후 50.4%,
-   RV Regime은 편향 제거 전 Sharpe 0.69 → 제거 후 0.02.
+   RV Regime은 편향 3개를 제거하자 Sharpe 0.02 · B&H 대비 -109.0%p로 알파가 사라졌습니다.
 5. **연구 설계는 근거의 해상도를 넘어설 수 없다.** 논문의 근거가 일별·사후 평가 수준인데 실시간 장중 개입을 설계한 것이
    이 프로젝트의 첫 번째 구조적 오류였고, 이를 인지해 질문을 재정의한 것이 전환점이었습니다.
 6. **BTC 24시간 거래 구조 자체가 정보를 즉시 흡수한다.** VIX 종가가 확정되는 시점에 반영은 이미 끝나 있습니다.
@@ -303,7 +308,7 @@ VIX 채널이 닫혔으므로 BTC 자체의 실현변동성(Realized Volatility)
 │   ├── residual_analysis.py         #   잔차 분해 (OOS 15분 모멘텀 54.3% — 약한 방향 정보)
 │   ├── exit_analysis.py             #   청산 시점 + GARCH 분석 (기각)
 │   ├── vol_trading_backtest.py      #   변동성 브레이크아웃 (기각)
-│   ├── REPORT.md / PIPELINE.md      #   결과 리포트 / 파이프라인 명세 (+ 재실행 검증 노트)
+│   ├── REPORT.md / PIPELINE.md      #   결과 리포트 / 파이프라인 명세 (artifacts 기준으로 정정 완료)
 │   └── artifacts/                   #   학습된 모델 3종 · scaler · threshold · anomaly signals
 │
 ├── analysis/
@@ -354,7 +359,7 @@ python data_collection/fetch_vixy_1m.py             # VIXY 1분봉
 python -m lstm_ae.train             # 학습 → artifacts/model.pt, scaler.pkl, threshold.json
 python -m lstm_ae.inference         # OOS 추론 → anomaly_signals_oos.parquet (98,136 windows)
 python -m lstm_ae.inference --is    # IS 추론  → anomaly_signals_is.parquet  (130,848 windows)
-python -m lstm_ae.backtest_final    # 확정 전략 vs 비교군 백테스트
+python -m lstm_ae.backtest_final    # 장중 anomaly 개입 vs 무개입 비교 백테스트 (개입은 전부 기각)
 ```
 
 학습된 artifacts가 이미 포함되어 있으므로 재학습 없이 추론부터 실행할 수 있습니다.
@@ -378,7 +383,8 @@ python analysis/vix_threshold/vix_threshold_directional.py
 ```
 
 > 분석 스크립트들은 저장소 루트의 `data/` 를 기준 경로로 참조합니다. 루트에서 실행하거나 스크립트 상단의 `BASE_DIR` 를 조정하세요.
-> `analysis/rv_regime/revised/` 는 `rv_regime` 패키지로 import되며 `config.py`(경로 · `TAKER_FEE=0.0004` · `SW/LW/QH`)가 별도로 필요합니다.
+> `analysis/rv_regime/revised/` 는 `rv_regime` 이라는 이름의 패키지로 import됩니다(디렉토리명 변경 또는 심볼릭 링크 필요).
+> 포함된 `config.py` 는 원본 저장소에 없던 파일을 문서 기재값으로 복원한 것이며, 각 값의 출처는 파일 상단 주석에 적어 두었습니다.
 
 ---
 
@@ -405,8 +411,8 @@ OOS  : 2025-11-01 ~ 2026-04-30   (123 T-days, 21%)  ← 최종 1회 평가 전�
    [`docs/strategy_report_2026-05-24_superseded.md`](docs/strategy_report_2026-05-24_superseded.md) 와
    [`results/is_backtest_report.html`](results/is_backtest_report.html) 는 lookahead bias 수정 **이전** 의 결과이며,
    기록 보존 목적으로만 포함했습니다. 유효한 결론은 `analysis/slope_change/` 와 `analysis/vix_duration/` 입니다.
-2. **`lstm_ae/REPORT.md` · `PIPELINE.md` 본문 수치는 재학습 이전 버전** 입니다. 각 문서 상단의 재실행 검증 노트를 먼저 보십시오.
-   확정값은 항상 `lstm_ae/artifacts/` 의 JSON·parquet입니다.
+2. **`lstm_ae/REPORT.md` · `PIPELINE.md` 의 수치는 커밋된 `artifacts/` 기준으로 정정했습니다.**
+   확정값은 항상 `lstm_ae/artifacts/` 의 JSON·parquet이며, 아티팩트로 확인되지 않는 값은 두 문서에서 삭제했습니다.
 3. **VIXY 데이터 희소성**: VIXY 장중 분봉 채움률이 14~41%에 불과해 forward fill로 보완했습니다.
    실거래가 없는 구간의 피처 품질은 제한적입니다.
 4. **휴일 캘린더 미적용**: MLK Day, 신정 등 저유동성일에 LSTM-AE False Positive가 발생합니다

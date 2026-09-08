@@ -60,4 +60,4 @@
 4. Wang et al. (2023): BTC 변동성 예측에 S&P 500 RV가 핵심 → 외부 IV가 아닌 RV가 유효
 5. Mensi et al. (2023): 정상 시장에서 크립토-전통자산 연결 약함 → 외부 시그널 한계
 6. 결론: 외부 시그널(VIX)에서 내부 시그널(BTC 자체 RV)로 전환
-7. RV Regime 전략 구축: WF Sharpe 0.69, B&H 대비 +20.7%p 초과수익
+7. RV Regime 전략 구축 → 편향(당일 데이터 포함 percentile·펀딩 미반영·짧은 검증구간) 제거 후 Sharpe 0.02, B&H 대비 -109.0%p로 알파 소멸
