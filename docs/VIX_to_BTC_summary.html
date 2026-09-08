@@ -1,0 +1,630 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>논문 구조화 요약: VIX to BTC</title>
+  <script>
+    MathJax = {
+      tex: { inlineMath: [['$', '$'], ['\\(', '\\)']], displayMath: [['$$', '$$'], ['\\[', '\\]']] }
+    };
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js" async></script>
+  <style>
+    body {
+      font-family: 'Pretendard', 'Noto Sans KR', sans-serif;
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 2rem;
+      background: #f9f9f9;
+      color: #222;
+      line-height: 1.8;
+    }
+
+    h1 {
+      border-bottom: 3px solid #2c5f8a;
+      padding-bottom: .5rem;
+      color: #1a3a5c;
+    }
+
+    h2 {
+      border-left: 5px solid #2c5f8a;
+      padding-left: .8rem;
+      color: #2c5f8a;
+      margin-top: 2.5rem;
+    }
+
+    h3 {
+      color: #3a7abd;
+      margin-top: 1.5rem;
+    }
+
+    h4 {
+      color: #555;
+    }
+
+    blockquote {
+      border-left: 4px solid #aac4e0;
+      background: #eaf2fb;
+      margin: 1rem 0;
+      padding: .8rem 1.2rem;
+      border-radius: 0 6px 6px 0;
+    }
+
+    table {
+      border-collapse: collapse;
+      width: 100%;
+      margin: 1rem 0;
+      font-size: .95rem;
+    }
+
+    th {
+      background: #2c5f8a;
+      color: #fff;
+      padding: .6rem 1rem;
+      text-align: left;
+    }
+
+    td {
+      border: 1px solid #cdd;
+      padding: .5rem 1rem;
+      background: #fff;
+    }
+
+    tr:nth-child(even) td {
+      background: #f2f7fc;
+    }
+
+    code,
+    pre {
+      background: #1e1e2e;
+      color: #cdd6f4;
+      padding: .2rem .5rem;
+      border-radius: 4px;
+      font-size: .9rem;
+    }
+
+    pre {
+      padding: 1rem;
+      overflow-x: auto;
+    }
+
+    .tag {
+      display: inline-block;
+      background: #27ae60;
+      color: #fff;
+      border-radius: 4px;
+      padding: .1rem .5rem;
+      font-size: .85rem;
+      margin-right: .4rem;
+    }
+
+    .highlight {
+      background: #fff3cd;
+      padding: .1rem .3rem;
+      border-radius: 3px;
+    }
+
+    hr {
+      border: none;
+      border-top: 1px solid #ccc;
+      margin: 2rem 0;
+    }
+
+    .meta {
+      background: #eaf2fb;
+      border-radius: 8px;
+      padding: 1rem 1.5rem;
+      margin-bottom: 2rem;
+      font-size: .95rem;
+    }
+  </style>
+</head>
+
+<body>
+
+  <h1>📄 논문 구조화 요약: <em>VIX to BTC</em></h1>
+
+  <div class="meta">
+    <strong>출처:</strong> SSRN Preprint #6233752 (미심사 논문)<br>
+    <strong>샘플 기간:</strong> 2021년 3월 24일 ~ 2025년 5월 5일 (일별 1,028 관측)<br>
+    <strong>저자 소속:</strong> 대만 국립대학교 계열 (Wang &amp; Yen 후속 연구)
+  </div>
+
+  <hr>
+
+  <h2>1. 연구 배경 및 문제의식</h2>
+
+  <blockquote><em>"VIX(전통 공포지수)와 암호화폐 내재변동성이 비트코인 수익률에 어떤 독립적 정보를 담고 있는가?"</em></blockquote>
+
+  <ul>
+    <li>비트코인은 현금흐름·밸류에이션 앵커가 없어 <strong>지각된 리스크 변화에 극도로 민감</strong></li>
+    <li>기관 투자자 유입으로 비트코인이 글로벌 금융 시스템에 점점 통합되는 추세</li>
+    <li>기존 연구는 VIX <strong>레벨</strong>만 사용 → VIX <strong>기간구조(Term Structure)</strong>의 정보 미활용</li>
+    <li>ETF 승인(2024.01)이 시장 미시구조를 바꿨는지 아직 검증 부재</li>
+  </ul>
+
+  <hr>
+
+  <h2>2. 5가지 핵심 가설</h2>
+
+  <table>
+    <tr>
+      <th>#</th>
+      <th>가설</th>
+      <th>내용 요약</th>
+    </tr>
+    <tr>
+      <td><strong>H1</strong></td>
+      <td>BTC IV 효과</td>
+      <td>$\Delta IV_{BTC,t}$ 는 당일 BTC 수익률과 <strong>음(−)의 관계</strong>, 시차 효과 없음</td>
+    </tr>
+    <tr>
+      <td><strong>H2</strong></td>
+      <td>VIX 효과</td>
+      <td>$\Delta VIX_t$ 는 BTC 수익률과 음(−)의 관계, 효과가 BTC IV만큼 <strong>강하거나 더 강함</strong></td>
+    </tr>
+    <tr>
+      <td><strong>H3</strong></td>
+      <td>VIX 기간구조 기울기</td>
+      <td>VIX <strong>Slope(PCA2)</strong> 변화가 Level 이상의 <strong>추가 설명력</strong>을 가짐</td>
+    </tr>
+    <tr>
+      <td><strong>H4</strong></td>
+      <td>ETH IV 추가 정보</td>
+      <td>$\Delta IV_{ETH,t}$ 가 $\Delta IV_{BTC,t}$·VIX 통제 후에도 <strong>독립적 정보</strong> 보유</td>
+    </tr>
+    <tr>
+      <td><strong>H5a/b</strong></td>
+      <td>ETF 승인 후 구조 변화</td>
+      <td>ETF 승인 후 $\Delta IV_{BTC}$→수익률 민감도 <strong>약화</strong>, VIX→수익률 민감도 <strong>불변</strong></td>
+    </tr>
+  </table>
+
+  <hr>
+
+  <h2>3. 데이터 및 방법론</h2>
+
+  <h3>3.1 데이터셋</h3>
+  <table>
+    <tr>
+      <th>변수</th>
+      <th>출처</th>
+      <th>비고</th>
+    </tr>
+    <tr>
+      <td>BTC 일별 수익률 $R^{btc}_{t}$</td>
+      <td>Binance API</td>
+      <td>USD 기준</td>
+    </tr>
+    <tr>
+      <td>BTC 내재변동성 $IV^{btc}_{t}$</td>
+      <td>Deribit Exchange</td>
+      <td>연율화, %</td>
+    </tr>
+    <tr>
+      <td>ETH 내재변동성 $IV^{eth}_{t}$</td>
+      <td>Deribit Exchange</td>
+      <td>연율화, %</td>
+    </tr>
+    <tr>
+      <td>VIX (9일, 30일, 3개월, 6개월)</td>
+      <td>CBOE</td>
+      <td>4개 만기</td>
+    </tr>
+  </table>
+
+  <p><strong>요약 통계</strong>: $R^{btc}_{t}$ 평균 <strong>+0.06%</strong>, 표준편차 <strong>3.74%</strong>, 왜도 $-0.38$, 초과첨도
+    $4.44$ / $IV^{btc}_{t}$ 평균 <strong>65.8%</strong>, $IV^{eth}_{t}$ 평균 <strong>77.2%</strong></p>
+
+  <h3>3.2 VIX 기간구조 PCA</h3>
+  <p>$\left(\Delta VIX_{9d},\; \Delta VIX_{30d},\; \Delta VIX_{3m},\; \Delta VIX_{6m}\right)$ 의 공분산 행렬에 PCA 적용:</p>
+  $$\text{PCA1}: \text{분산의 } 96.17\% \;\Rightarrow\; \text{Level 요인 (병렬 이동)}$$
+  $$\text{PCA2}: \text{분산의 } 3.51\% \;\Rightarrow\; \text{Slope 요인 (단기 vs 장기 상대 변화)}$$
+
+  <h3>🔍 PCA란 무엇인가? — PCA1 vs PCA2 직관적 설명</h3>
+
+  <blockquote>
+    <strong>PCA (Principal Component Analysis, 주성분 분석)</strong>란 여러 변수 사이의 공통된 변동 패턴을 압축해서 <em>"핵심 힘"</em>을 뽑아내는 통계
+    기법입니다.<br>
+    이 논문에서는 <strong>4개 만기의 VIX 일별 변화</strong>를 동시에 분석하기 위해 PCA를 사용합니다.
+  </blockquote>
+
+  <p>VIX 4개 시리즈는 서로 강하게 연동되어 있지만 <strong>미묘하게 다른 방식으로 움직입니다.</strong> PCA는 이 4개를 2개의 독립적인 패턴으로 압축합니다:</p>
+
+  <table>
+    <tr>
+      <th></th>
+      <th>PCA1 — Level 요인</th>
+      <th>PCA2 — Slope 요인</th>
+    </tr>
+    <tr>
+      <td><strong>설명 분산</strong></td>
+      <td><strong>96.17%</strong></td>
+      <td>3.51%</td>
+    </tr>
+    <tr>
+      <td><strong>의미</strong></td>
+      <td>"VIX 전체가 올라갔다/내려갔다"<br><em>(병렬 이동)</em></td>
+      <td>"단기 VIX가 장기 VIX보다 더/덜 올랐다"<br><em>(기울기 변화)</em></td>
+    </tr>
+    <tr>
+      <td><strong>비유</strong></td>
+      <td>온도계 전체가 올라감</td>
+      <td>아침은 춥고 낮은 따뜻함<br><em>(온도 기울기)</em></td>
+    </tr>
+    <tr>
+      <td><strong>발생 상황</strong></td>
+      <td>코로나·전쟁 등 시장 전반 공포</td>
+      <td>단기 패닉이지만 장기는 안정적<br><em>(or 그 반대)</em></td>
+    </tr>
+    <tr>
+      <td><strong>BTC에 미치는 계수</strong></td>
+      <td>$-0.0051^{***}$</td>
+      <td>$-0.0113^{***}$ <span style="color:#c0392b">← 더 큼!</span></td>
+    </tr>
+  </table>
+
+  <h4>📦 구체적 수치 예시</h4>
+
+  <table>
+    <tr>
+      <th>만기</th>
+      <th>상황 A — PCA1만 변화<br>(모두 같이 상승)</th>
+      <th>상황 B — PCA2 변화<br>(단기만 급등)</th>
+    </tr>
+    <tr>
+      <td>VIX_9d</td>
+      <td>15 → 20 (+5)</td>
+      <td>15 → <strong>30 (+15)</strong> 📈</td>
+    </tr>
+    <tr>
+      <td>VIX_30d</td>
+      <td>18 → 23 (+5)</td>
+      <td>18 → 21 (+3)</td>
+    </tr>
+    <tr>
+      <td>VIX_3m</td>
+      <td>20 → 25 (+5)</td>
+      <td>20 → 21 (+1)</td>
+    </tr>
+    <tr>
+      <td>VIX_6m</td>
+      <td>22 → 27 (+5)</td>
+      <td>22 → 22 (0)</td>
+    </tr>
+    <tr>
+      <td><strong>해석</strong></td>
+      <td>"시장이 전반적으로 불안해졌다"</td>
+      <td>"지금 당장은 공황이지만 곧 끝날 것 같다"</td>
+    </tr>
+  </table>
+
+  <blockquote>
+    <strong>💡 논문의 핵심 발견 (H3)</strong>: PCA2(Slope) 계수의 절댓값이 PCA1(Level)보다 <strong>2배 이상 크다</strong> ($|-0.0113| >
+    |-0.0051|$).<br>
+    즉, <strong>단기 VIX가 장기 VIX보다 상대적으로 급등하는 패닉 상황</strong>이 단순한 전반적 VIX 상승보다 BTC 수익률에 더 강한 타격을 줍니다.<br>
+    이것이 기존 연구들이 VIX 레벨만 사용해서 놓쳤던 정보입니다.
+  </blockquote>
+
+  <h4>📊 "설명 분산(Explained Variance)"이란?</h4>
+
+  <p>PCA 결과표에 나오는 "설명 분산 96.17%"는 <strong>회귀의 $R^2$와 다릅니다.</strong></p>
+
+  <table>
+    <tr>
+      <th></th>
+      <th>PCA 설명 분산</th>
+      <th>회귀 $R^2$ (결정계수)</th>
+    </tr>
+    <tr>
+      <td><strong>정의</strong></td>
+      <td>전체 분산 중 해당 주성분이 차지하는 비율</td>
+      <td>Y의 분산 중 X가 설명하는 비율</td>
+    </tr>
+    <tr>
+      <td><strong>수식</strong></td>
+      <td>$\dfrac{\lambda_k}{\sum_i \lambda_i}$</td>
+      <td>$1 - \dfrac{SS_{res}}{SS_{tot}}$</td>
+    </tr>
+    <tr>
+      <td><strong>X와 Y 관계</strong></td>
+      <td>Y 없음 — X들끼리의 내부 구조</td>
+      <td>X → Y 예측 적합도</td>
+    </tr>
+    <tr>
+      <td><strong>이 논문에서</strong></td>
+      <td>VIX 4개 만기 변화를 PCA1이 96% 압축</td>
+      <td>BTC 수익률을 모형이 8.7~20.9% 설명</td>
+    </tr>
+  </table>
+
+  <blockquote>
+    <strong>직관적 비유</strong>: 4명의 학생(VIX_9d, 30d, 3m, 6m)의 성적이 있다고 할 때,<br>
+    "PCA1이 분산의 96%를 설명한다" = <em>"이 4명의 성적 차이는 거의 하나의 공통 요인(예: 전체 학업 수준)으로 설명된다"</em><br>
+    즉, PCA1은 <strong>4개 VIX 시리즈의 공통 움직임을 96% 압축</strong>한 것이고,<br>
+    나머지 4%(PCA2)는 그 공통 움직임으로 설명 안 되는 <strong>만기별 상대적 차이</strong>입니다.
+  </blockquote>
+
+  <h3>3.3 직교화(Orthogonalization) 전략</h3>
+  <p><strong>Step 1</strong> — $\Delta VIX_t$ 를 $\Delta IV_{BTC,t}$ 에 회귀한 잔차:</p>
+  $$\Delta VIX^{\perp BTC}_{t} = \Delta VIX_{t} - \hat{\delta}\,\Delta IV_{BTC,t}$$
+  <p><strong>Step 2</strong> — $\Delta IV_{ETH,t}$ 를 $\Delta IV_{BTC,t}$ 와 $\Delta VIX_t$ 에 회귀한 잔차:</p>
+  $$\Delta IV^{\perp BTC,VIX}_{ETH,t} = \Delta IV_{ETH,t} - \hat{\phi}_1\,\Delta IV_{BTC,t} - \hat{\phi}_2\,\Delta
+  VIX_t$$
+
+  <h3>3.4 기본 회귀 모형</h3>
+  $$R^{btc}_{t} = \alpha + \beta_1\,\Delta IV_{BTC,t} + \beta_2\,\Delta VIX^{\perp BTC}_{30d,t} + \beta_3\,\Delta
+  IV^{\perp BTC,VIX}_{ETH,t} + \boldsymbol{\gamma}'\mathbf{Controls} + \epsilon_t$$
+  <ul>
+    <li><strong>Controls</strong>: $R^{btc}_{t-1},\; R^{btc}_{t-2},\; R^{btc}_{t-3}$</li>
+    <li><strong>Fixed Effects</strong>: Year, Quarter, Month FE</li>
+    <li><strong>표준오차</strong>: Newey-West (이분산·자기상관 교정)</li>
+  </ul>
+
+  <hr>
+
+  <h2>4. 실증 결과</h2>
+
+  <h3>4.1 H1 — $\Delta IV_{BTC}$ 의 당일 효과 (Table 3)</h3>
+  <table>
+    <tr>
+      <th>변수</th>
+      <th>계수</th>
+      <th>$t$-stat</th>
+    </tr>
+    <tr>
+      <td>$\Delta IV_{BTC,t}$ (당일)</td>
+      <td>$-0.251^{***}$</td>
+      <td>$(-4.556)$</td>
+    </tr>
+    <tr>
+      <td>$\Delta IV_{BTC,t-1}$</td>
+      <td>$+0.064^{**}$</td>
+      <td>$(+2.418)$</td>
+    </tr>
+    <tr>
+      <td>$\Delta IV_{BTC,t-2},\; \Delta IV_{BTC,t-3}$</td>
+      <td>비유의</td>
+      <td>—</td>
+    </tr>
+    <tr>
+      <td>$\text{Adj.}\;R^2$</td>
+      <td>$0.087$</td>
+      <td>—</td>
+    </tr>
+  </table>
+  <p>✅ <strong>H1 지지</strong>: 강한 당일 음(−) 효과 확인, 시차 효과는 소멸</p>
+
+  <h3>4.2 H2 — VIX의 추가 설명력 (Table 4)</h3>
+  <table>
+    <tr>
+      <th>모형</th>
+      <th>추가 변수</th>
+      <th>계수</th>
+      <th>$\text{Adj.}\;R^2$</th>
+    </tr>
+    <tr>
+      <td>기본</td>
+      <td>—</td>
+      <td>$-0.251^{***}$</td>
+      <td>$0.087$</td>
+    </tr>
+    <tr>
+      <td>+ VIX 직교화</td>
+      <td>$\Delta VIX^{\perp BTC}_{30d,t}$</td>
+      <td>$-0.0057^{***}\ (-6.95)$</td>
+      <td>$0.161$</td>
+    </tr>
+    <tr>
+      <td>+ ETH IV 직교화</td>
+      <td>$\Delta IV^{\perp BTC,VIX}_{ETH,t}$</td>
+      <td>$-0.127^{**}\ (-2.07)$</td>
+      <td>$0.169$</td>
+    </tr>
+  </table>
+  <blockquote>$R^2:\; 0.087 \to 0.161$, VIX 추가만으로 약 <strong>+7.4%p</strong> 설명력 증가</blockquote>
+  <p>✅ <strong>H2 지지</strong>: $|t_{VIX}| = 6.95 > |t_{\Delta IV_{BTC}}| = 4.56$</p>
+
+  <h3>4.3 H3 — VIX 기간구조 기울기 효과 (Table 5)</h3>
+  <table>
+    <tr>
+      <th>변수</th>
+      <th>계수</th>
+      <th>해석</th>
+    </tr>
+    <tr>
+      <td>PCA1 (Level)</td>
+      <td>$-0.0051^{***}$</td>
+      <td>전반적 VIX 상승 → BTC 하락</td>
+    </tr>
+    <tr>
+      <td>PCA2 (Slope)</td>
+      <td>$-0.0113^{***}\ (-3.44)$</td>
+      <td><strong>단기 VIX가 상대적으로 더 급등 → BTC 추가 하락</strong></td>
+    </tr>
+  </table>
+  $$\text{단기}(9d)\;VIX \uparrow\uparrow \;\text{vs}\; \text{장기}(6m)\;VIX \uparrow \;\Rightarrow\; \text{기울기 하락}
+  \;\Rightarrow\; \text{BTC 매도 압력}$$
+  <p>✅ <strong>H3 지지</strong>: Slope 요인이 Level 외 독립적 정보 제공</p>
+
+  <h4>🧭 H3에서 말하는 "Level"이란?</h4>
+
+  <p>헷갈리기 쉬운 용어이므로 정리합니다:</p>
+
+  <table>
+    <tr>
+      <th>용어</th>
+      <th>의미</th>
+      <th>예시</th>
+    </tr>
+    <tr>
+      <td><strong>VIX Level</strong></td>
+      <td>VIX의 절대 수준값</td>
+      <td>VIX = 25</td>
+    </tr>
+    <tr>
+      <td><strong>ΔVIX (Change)</strong></td>
+      <td>VIX의 하루 변화량</td>
+      <td>어제 20 → 오늘 25, Δ = +5</td>
+    </tr>
+    <tr>
+      <td><strong>PCA1 (Level 요인)</strong></td>
+      <td>ΔVIX 4개 만기가 <em>같은 방향으로 움직이는</em> 공통 패턴</td>
+      <td>9d/30d/3m/6m 모두 +5씩 상승</td>
+    </tr>
+    <tr>
+      <td><strong>PCA2 (Slope 요인)</strong></td>
+      <td>ΔVIX 4개 만기의 <em>상대적 기울기 변화</em></td>
+      <td>9d만 +15, 6m은 0</td>
+    </tr>
+  </table>
+
+  <blockquote>
+    <strong>⚠️ 주의</strong>: H3의 "Level"은 VIX의 절대값(예: VIX=25)이 아닙니다.<br>
+    <strong>PCA1이 잡아내는 패턴</strong>, 즉 4개 만기 VIX가 <em>일제히 같은 크기로 오르내리는 평행이동(parallel shift)</em>을 뜻합니다.<br><br>
+    기존 연구들은 VIX 30일짜리 단일 숫자만 사용했는데, 이것이 곧 <strong>"Level 정보만 쓴 것"</strong>입니다.<br>
+    H3는 <em>"그 Level 정보를 넘어서, 만기별 기울기 정보(Slope)까지 보면 설명력이 더 높아진다"</em>고 주장합니다.
+  </blockquote>
+
+  <p>실제 계수를 비교하면:</p>
+  $$|\beta_{PCA2}| = 0.0113 \;>\; |\beta_{PCA1}| = 0.0051 \quad \Rightarrow \quad \text{Slope 효과가 Level 효과의 }
+  \mathbf{2.2\text{배}}$$
+
+  <h3>4.4 H4 — ETH IV의 독립 정보 (Table 4, Col. 3)</h3>
+  <p>$\Delta IV^{\perp BTC,VIX}_{ETH,t}$ 계수: $-0.127^{**}$ ($p &lt; 5\%$) — $\Delta IV_{BTC}$ 와 VIX 통제 후에도 유의</p>
+  <p>✅ <strong>H4 지지</strong>: ETH 옵션 시장이 <strong>DeFi·알트코인 리스크 등 암호화폐 고유 정보</strong> 포착</p>
+
+  <h3>4.5 H5 — Bitcoin ETF 승인(2024.01) 구조 변화 (Table A8)</h3>
+  <p>검증 모형 ($\text{Post} = \mathbf{1}[t \geq 2024\text{-}01\text{-}10]$):</p>
+  $$R^{btc}_{t} = \alpha + \beta_1\,\Delta IV_{BTC,t} + \beta_2\,\Delta VIX^{\perp BTC}_{30d,t} + \beta_3\,\Delta
+  IV^{\perp BTC,VIX}_{ETH,t} + \beta_4\,\text{Post}$$
+  $$+\; \beta_5\!\left(\Delta IV_{BTC,t} \times \text{Post}\right) + \beta_6\!\left(\Delta VIX^{\perp BTC}_{30d,t}
+  \times \text{Post}\right) + \beta_7\!\left(\Delta IV^{\perp BTC,VIX}_{ETH,t} \times \text{Post}\right) +
+  \boldsymbol{\gamma}'\mathbf{Controls} + \epsilon_t$$
+
+  <table>
+    <tr>
+      <th>상호작용항</th>
+      <th>계수</th>
+      <th>$t$-stat</th>
+      <th>해석</th>
+    </tr>
+    <tr>
+      <td>$\Delta IV_{BTC,t} \times \text{Post}$</td>
+      <td>$+0.524^{***}$</td>
+      <td>$(+4.437)$</td>
+      <td>ETF 이후 BTC IV 민감도 <strong>크게 약화</strong></td>
+    </tr>
+    <tr>
+      <td>$\Delta VIX^{\perp BTC}_{30d,t} \times \text{Post}$</td>
+      <td>$+0.001$</td>
+      <td>$(+0.67)$</td>
+      <td>VIX 민감도 <strong>불변</strong></td>
+    </tr>
+    <tr>
+      <td>$\Delta IV^{\perp BTC,VIX}_{ETH,t} \times \text{Post}$</td>
+      <td>$-0.183$</td>
+      <td>$(-1.25)$</td>
+      <td>ETH 민감도 변화 없음</td>
+    </tr>
+    <tr>
+      <td>$\text{Adj.}\;R^2$</td>
+      <td>$0.209$</td>
+      <td>—</td>
+      <td>전 모형 중 최고값</td>
+    </tr>
+  </table>
+  <p>✅ <strong>H5a 지지</strong>: 기관 투자자 유입 → 암호화폐 고유 변동성 충격에 대한 패닉 매도 <strong>감소</strong><br>
+    ✅ <strong>H5b 지지</strong>: 글로벌 리스크 감응도(VIX)는 유지 → 시스템 리스크 전달 채널 <strong>지속</strong></p>
+
+  <hr>
+
+  <h2>5. 강건성 검증 (Robustness)</h2>
+
+  <h3>5.1 VIX 만기별 개별 검증 (Table A7)</h3>
+  <p>$\Delta VIX_{30d}$, $\Delta VIX_{6m}$ 모두 독립적으로 유의 ($|t| \approx 7.5$) — 특정 만기 선택에 결과 의존하지 않음</p>
+
+  <h3>5.2 대선 플라세보 테스트 (Table A9)</h3>
+  <p>$\text{Post} = \mathbf{1}[t \geq 2024\text{-}11\text{-}06]$ 설정 시:</p>
+  $$\Delta IV_{BTC,t} \times \text{Post}_{\text{Nov}}: \;\hat{\beta} = +0.321,\; t = 1.347 \;\text{(비유의)}$$
+  <p>✅ ETF 승인과 달리 대선은 구조 변화 없음 → ETF 효과의 <strong>특수성 확인</strong></p>
+
+  <h3>5.3 주요 상관관계 (Table 2)</h3>
+  <table>
+    <tr>
+      <th>변수 쌍</th>
+      <th>상관계수</th>
+      <th>비고</th>
+    </tr>
+    <tr>
+      <td>$R^{btc}_{t}$ vs $\Delta VIX_{30d}$</td>
+      <td>$-0.332$</td>
+      <td>강한 음의 동행성</td>
+    </tr>
+    <tr>
+      <td>$R^{btc}_{t}$ vs $\Delta IV_{BTC}$</td>
+      <td>$-0.284$</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>$R^{btc}_{t}$ vs $\Delta IV_{ETH}$</td>
+      <td>$-0.303$</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>$\Delta IV_{BTC}$ vs $\Delta IV_{ETH}$</td>
+      <td>$+0.804$</td>
+      <td>BTC·ETH IV 간 높은 공동 변동</td>
+    </tr>
+    <tr>
+      <td>$IV_{BTC}$ vs $IV_{ETH}$</td>
+      <td>$+0.944$</td>
+      <td>레벨에서 거의 동행</td>
+    </tr>
+  </table>
+
+  <hr>
+
+  <h2>6. 결론 및 함의</h2>
+
+  <blockquote><strong>[1] 듀얼 채널 확인</strong>: $VIX$(전통 금융 공포) + $IV_{BTC}$(암호화폐 공포)가 <strong>독립적으로</strong> BTC 수익률 결정
+  </blockquote>
+  <blockquote><strong>[2] VIX Slope의 역할</strong>: 단순 Level보다 <strong>PCA2(Slope)</strong>가 추가 정보 내포 → 투자자의 단기 리스크 집중도 반영
+  </blockquote>
+  <blockquote><strong>[3] ETF 제도화 효과</strong>: 2024년 1월 ETF 승인 이후 BTC가 <em>"crypto-specific 자산"</em>에서 <em>"기관 운용
+      자산"</em>으로 성격 변화</blockquote>
+
+  <h3>투자/포트폴리오 함의</h3>
+  <table>
+    <tr>
+      <th>시나리오</th>
+      <th>VIX</th>
+      <th>$IV_{BTC}$</th>
+      <th>예상 BTC 반응</th>
+    </tr>
+    <tr>
+      <td>시장 전반 공황</td>
+      <td>$\uparrow\uparrow$</td>
+      <td>$\uparrow$</td>
+      <td>강한 하락 (VIX 채널 지배)</td>
+    </tr>
+    <tr>
+      <td>암호화폐 고유 쇼크</td>
+      <td>$\rightarrow$</td>
+      <td>$\uparrow\uparrow$</td>
+      <td>하락 (ETF 이후 충격 완화)</td>
+    </tr>
+    <tr>
+      <td>기간구조 역전</td>
+      <td>단기$\uparrow\uparrow$ 장기$\uparrow$</td>
+      <td>$\rightarrow$</td>
+      <td>추가 하락 (Slope 효과)</td>
+    </tr>
+  </table>
+
+
+</body>
+
+</html>

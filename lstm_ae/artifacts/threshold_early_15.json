@@ -1,0 +1,8 @@
+{
+  "threshold": 0.5742842555046082,
+  "percentile": 92.5,
+  "window_size": 15,
+  "n_windows": 15660,
+  "score_mean": 0.5055339336395264,
+  "score_std": 11.233487129211426
+}

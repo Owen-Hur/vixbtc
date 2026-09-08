@@ -1,0 +1,41 @@
+# ── Raw market data (재수집 가능, data/README.md 참조) ───────────
+data/*.parquet
+data/*.csv
+data/btc_1m_24h/
+data/btc_historical_processed/
+data/btc_historicla_processed/
+data/vixy_1m/
+data/raw/
+!data/README.md
+
+# ── Python ──────────────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*.egg-info/
+.ipynb_checkpoints/
+venv/
+.venv/
+env/
+
+# ── OS / Editor ─────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+
+# ── Slide / presentation build artifacts ────────────────────────
+*.pptx
+_slide_assets/
+_u/
+build_slides.py
+rebuild_slides.py
+rebuild_slopechange.py
+rebuild_sc_v3.py
+rebuild_vd.py
+
+# ── Papers (저작권) ──────────────────────────────────────────────
+*.pdf
+papers/
+
+# ── Large generated dashboards ──────────────────────────────────
+backtest_results/

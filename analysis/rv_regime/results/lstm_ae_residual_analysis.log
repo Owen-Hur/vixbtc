@@ -1,0 +1,208 @@
+/Users/macbook/btc_project/lstm_ae/dataset.py:136: FutureWarning: DataFrameGroupBy.apply operated on the grouping columns. This behavior is deprecated, and in a future version of pandas the grouping columns will be excluded from the operation. Either pass `include_groups=False` to exclude the groupings or explicitly select the grouping columns after groupby to silence this warning.
+  df["vixy_btc_corr"] = df.groupby("trade_date").apply(
+/Users/macbook/btc_project/lstm_ae/dataset.py:136: FutureWarning: DataFrameGroupBy.apply operated on the grouping columns. This behavior is deprecated, and in a future version of pandas the grouping columns will be excluded from the operation. Either pass `include_groups=False` to exclude the groupings or explicitly select the grouping columns after groupby to silence this warning.
+  df["vixy_btc_corr"] = df.groupby("trade_date").apply(
+
+======================================================================
+  IS (2024-01 ~ 2025-04)
+======================================================================
+  BTC 로딩: 16개 파일, 135,720행
+  VIXY 로딩: 16개 파일, 병합 완료 (ffill 적용)
+  VIXY 피처 계산 완료: vixy_return, vixy_rolling_std, vixy_btc_corr
+  윈도우 생성: 115,188개 (window_size=60)
+  Windows: 115,188
+  Anomaly windows: 8,640 (7.5%)
+  분석 가능 샘플: 31,520
+
+  === 피처별 signed residual → 향후 수익 상관 ===
+
+  [5분 후]
+    btc_return          : r=+0.3881, p=0.0000 ***
+    trade_imbalance     : r=+0.1869, p=0.0000 ***
+    trade_count         : r=+0.0458, p=0.0000 ***
+    avg_trade_size      : r=+0.0276, p=0.0110 **
+    vixy_return         : r=-0.0537, p=0.0000 ***
+    vixy_rolling_std    : r=+0.0138, p=0.2023
+    vixy_btc_corr       : r=+0.0005, p=0.9632
+
+  [15분 후]
+    btc_return          : r=+0.2471, p=0.0000 ***
+    trade_imbalance     : r=+0.1080, p=0.0000 ***
+    trade_count         : r=+0.0534, p=0.0000 ***
+    avg_trade_size      : r=+0.0352, p=0.0014 ***
+    vixy_return         : r=-0.0355, p=0.0013 ***
+    vixy_rolling_std    : r=+0.0461, p=0.0000 ***
+    vixy_btc_corr       : r=+0.0366, p=0.0009 ***
+
+  [30분 후]
+    btc_return          : r=+0.1837, p=0.0000 ***
+    trade_imbalance     : r=+0.0762, p=0.0000 ***
+    trade_count         : r=+0.0205, p=0.0702 *
+    avg_trade_size      : r=+0.0074, p=0.5161
+    vixy_return         : r=-0.0242, p=0.0327 **
+    vixy_rolling_std    : r=+0.0546, p=0.0000 ***
+    vixy_btc_corr       : r=+0.0268, p=0.0183 **
+
+  [60분 후]
+    btc_return          : r=+0.1522, p=0.0000 ***
+    trade_imbalance     : r=+0.0666, p=0.0000 ***
+    trade_count         : r=+0.0184, p=0.1223
+    avg_trade_size      : r=+0.0112, p=0.3474
+    vixy_return         : r=-0.0277, p=0.0201 **
+    vixy_rolling_std    : r=+0.0796, p=0.0000 ***
+    vixy_btc_corr       : r=+0.0229, p=0.0545 *
+
+  === vixy_return 잔차 방향별 BTC 향후 수익 ===
+  [15분 후]
+    VXX 예상 외 상승 (n=4,738): BTC 평균 +0.80bp
+    VXX 예상 외 하락 (n=3,445): BTC 평균 -1.99bp
+    t=+2.105, p=0.0353
+  [30분 후]
+    VXX 예상 외 상승 (n=4,493): BTC 평균 -2.58bp
+    VXX 예상 외 하락 (n=3,284): BTC 평균 -4.31bp
+    t=+0.983, p=0.3257
+  [60분 후]
+    VXX 예상 외 상승 (n=4,084): BTC 평균 -7.54bp
+    VXX 예상 외 하락 (n=2,976): BTC 평균 -7.87bp
+    t=+0.151, p=0.8799
+
+  === btc_return 잔차 방향별 BTC 향후 수익 ===
+  [15분 후]
+    BTC 예상 외 상승 (n=4,599): 이후 +7.31bp
+    BTC 예상 외 하락 (n=3,584): 이후 -10.24bp
+    t=+13.434, p=0.0000
+  [30분 후]
+    BTC 예상 외 상승 (n=4,383): 이후 +3.51bp
+    BTC 예상 외 하락 (n=3,394): 이후 -12.12bp
+    t=+8.939, p=0.0000
+  [60분 후]
+    BTC 예상 외 상승 (n=3,970): 이후 -0.97bp
+    BTC 예상 외 하락 (n=3,090): 이후 -16.29bp
+    t=+6.940, p=0.0000
+
+  === 복합 신호: VXX↑ & BTC↓ (공포 확산) vs VXX↓ & BTC↑ (낙관) ===
+  [15분 후]
+    공포 (VXX↑,BTC↓) n=2,163: BTC 이후 -7.39bp
+    낙관 (VXX↓,BTC↑) n=2,024: BTC 이후 +6.84bp
+    t=-7.948, p=0.0000
+  [30분 후]
+    공포 (VXX↑,BTC↓) n=2,039: BTC 이후 -9.07bp
+    낙관 (VXX↓,BTC↑) n=1,929: BTC 이후 +4.39bp
+    t=-5.611, p=0.0000
+  [60분 후]
+    공포 (VXX↑,BTC↓) n=1,864: BTC 이후 -14.10bp
+    낙관 (VXX↓,BTC↑) n=1,750: BTC 이후 +0.36bp
+    t=-4.714, p=0.0000
+
+  === signed residual 기반 방향 예측 정확도 ===
+  [15분] VXX 잔차 반대 방향: 48.3% (n=8183)
+  [15분] BTC 잔차 모멘텀:     57.1% (n=8183)
+  [15분] BTC 잔차 반전:       42.9% (n=8183)
+  [30분] VXX 잔차 반대 방향: 49.8% (n=7777)
+  [30분] BTC 잔차 모멘텀:     54.5% (n=7777)
+  [30분] BTC 잔차 반전:       45.5% (n=7777)
+  [60분] VXX 잔차 반대 방향: 50.4% (n=7060)
+  [60분] BTC 잔차 모멘텀:     53.0% (n=7060)
+  [60분] BTC 잔차 반전:       47.0% (n=7060)
+
+======================================================================
+  OOS (2025-05 ~ 2026-04)
+======================================================================
+  BTC 로딩: 12개 파일, 101,790행
+  VIXY 로딩: 12개 파일, 병합 완료 (ffill 적용)
+  VIXY 피처 계산 완료: vixy_return, vixy_rolling_std, vixy_btc_corr
+  윈도우 생성: 86,391개 (window_size=60)
+  Windows: 86,391
+  Anomaly windows: 6,134 (7.1%)
+  분석 가능 샘플: 20,584
+
+  === 피처별 signed residual → 향후 수익 상관 ===
+
+  [5분 후]
+    btc_return          : r=+0.2279, p=0.0000 ***
+    trade_imbalance     : r=+0.1589, p=0.0000 ***
+    trade_count         : r=+0.0483, p=0.0002 ***
+    avg_trade_size      : r=+0.0286, p=0.0270 **
+    vixy_return         : r=-0.1157, p=0.0000 ***
+    vixy_rolling_std    : r=-0.0071, p=0.5807
+    vixy_btc_corr       : r=+0.0092, p=0.4795
+
+  [15분 후]
+    btc_return          : r=+0.0807, p=0.0000 ***
+    trade_imbalance     : r=+0.0873, p=0.0000 ***
+    trade_count         : r=+0.0466, p=0.0005 ***
+    avg_trade_size      : r=+0.0119, p=0.3766
+    vixy_return         : r=-0.0460, p=0.0006 ***
+    vixy_rolling_std    : r=+0.0367, p=0.0062 ***
+    vixy_btc_corr       : r=-0.0089, p=0.5052
+
+  [30분 후]
+    btc_return          : r=+0.0806, p=0.0000 ***
+    trade_imbalance     : r=+0.0709, p=0.0000 ***
+    trade_count         : r=+0.0325, p=0.0218 **
+    avg_trade_size      : r=+0.0089, p=0.5324
+    vixy_return         : r=-0.0205, p=0.1487
+    vixy_rolling_std    : r=+0.0271, p=0.0558 *
+    vixy_btc_corr       : r=-0.0090, p=0.5275
+
+  [60분 후]
+    btc_return          : r=+0.0713, p=0.0000 ***
+    trade_imbalance     : r=+0.0647, p=0.0000 ***
+    trade_count         : r=+0.0249, p=0.1116
+    avg_trade_size      : r=+0.0090, p=0.5677
+    vixy_return         : r=-0.0137, p=0.3826
+    vixy_rolling_std    : r=+0.0018, p=0.9111
+    vixy_btc_corr       : r=-0.0074, p=0.6347
+
+  === vixy_return 잔차 방향별 BTC 향후 수익 ===
+  [15분 후]
+    VXX 예상 외 상승 (n=3,548): BTC 평균 +0.83bp
+    VXX 예상 외 하락 (n=2,020): BTC 평균 -1.38bp
+    t=+2.113, p=0.0346
+  [30분 후]
+    VXX 예상 외 상승 (n=3,172): BTC 평균 +1.27bp
+    VXX 예상 외 하락 (n=1,804): BTC 평균 -2.10bp
+    t=+2.184, p=0.0290
+  [60분 후]
+    VXX 예상 외 상승 (n=2,503): BTC 평균 +3.23bp
+    VXX 예상 외 하락 (n=1,567): BTC 평균 +1.54bp
+    t=+0.725, p=0.4686
+
+  === btc_return 잔차 방향별 BTC 향후 수익 ===
+  [15분 후]
+    BTC 예상 외 상승 (n=3,215): 이후 +2.27bp
+    BTC 예상 외 하락 (n=2,353): 이후 -3.03bp
+    t=+5.222, p=0.0000
+  [30분 후]
+    BTC 예상 외 상승 (n=2,891): 이후 +2.27bp
+    BTC 예상 외 하락 (n=2,085): 이후 -3.03bp
+    t=+3.527, p=0.0004
+  [60분 후]
+    BTC 예상 외 상승 (n=2,429): 이후 +4.76bp
+    BTC 예상 외 하락 (n=1,641): 이후 -0.64bp
+    t=+2.340, p=0.0193
+
+  === 복합 신호: VXX↑ & BTC↓ (공포 확산) vs VXX↓ & BTC↑ (낙관) ===
+  [15분 후]
+    공포 (VXX↑,BTC↓) n=1,685: BTC 이후 -2.15bp
+    낙관 (VXX↓,BTC↑) n=1,352: BTC 이후 +0.53bp
+    t=-1.916, p=0.0555
+  [30분 후]
+    공포 (VXX↑,BTC↓) n=1,495: BTC 이후 -2.44bp
+    낙관 (VXX↓,BTC↑) n=1,214: BTC 이후 -0.92bp
+    t=-0.740, p=0.4595
+  [60분 후]
+    공포 (VXX↑,BTC↓) n=1,151: BTC 이후 +0.65bp
+    낙관 (VXX↓,BTC↑) n=1,077: BTC 이후 +3.92bp
+    t=-1.036, p=0.3005
+
+  === signed residual 기반 방향 예측 정확도 ===
+  [15분] VXX 잔차 반대 방향: 47.9% (n=5568)
+  [15분] BTC 잔차 모멘텀:     54.3% (n=5568)
+  [15분] BTC 잔차 반전:       45.7% (n=5568)
+  [30분] VXX 잔차 반대 방향: 48.5% (n=4976)
+  [30분] BTC 잔차 모멘텀:     52.6% (n=4976)
+  [30분] BTC 잔차 반전:       47.4% (n=4976)
+  [60분] VXX 잔차 반대 방향: 48.9% (n=4070)
+  [60분] BTC 잔차 모멘텀:     53.2% (n=4070)
+  [60분] BTC 잔차 반전:       46.8% (n=4070)

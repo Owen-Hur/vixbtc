@@ -1,0 +1,45 @@
+{
+  "time_axis": {
+    "definition": "T-day, 0:00 \u2261 16:16 ET (first BTC measurement after VIX close confirmation)",
+    "tday_0000_absolute": "16:16 ET",
+    "tday_1714_absolute": "next-day 09:30 ET",
+    "total_minutes_per_tday": 1035
+  },
+  "n_primary": 601,
+  "n_supp": 1017,
+  "concurrent_benchmark": {
+    "primary": {
+      "r": -0.23307852321731748,
+      "p": 7.38555175434745e-09,
+      "n": 601
+    },
+    "supp": {
+      "r": -0.18010865419755287,
+      "p": 7.292628375777024e-09,
+      "n": 1017
+    }
+  },
+  "tday_summary": {
+    "primary_avg_hit": 47.47867885247615,
+    "supp_avg_hit": 49.64701523377937,
+    "primary_min_r": {
+      "tday_clock": "01:04",
+      "tday_hour": 1.0666666666666667,
+      "r": -0.10466175847758663,
+      "p": 0.010242660904622862
+    },
+    "supp_min_r": {
+      "tday_clock": "03:17",
+      "tday_hour": 3.283333333333333,
+      "r": -0.18471624005714862,
+      "p": 2.946044163530651e-09
+    },
+    "sig_minutes_primary": 10,
+    "sig_minutes_supp": 915,
+    "total_minutes": 1035
+  },
+  "two_sigma_events_primary": {
+    "n_spike": 15,
+    "n_drop": 9
+  }
+}
