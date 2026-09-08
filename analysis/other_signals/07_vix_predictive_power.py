@@ -25,10 +25,14 @@ VIX 시그널의 BTC 방향 예측력 종합 분석.
 """
 import pandas as pd
 import numpy as np
+from pathlib import Path
 from rv_regime.data_loader import load_and_prepare
 
+# 저장소 루트 (data/ 가 있는 곳) — 실행 위치와 무관하게 파일 위치로부터 계산
+BASE_DIR = Path(__file__).resolve().parents[2]
+
 rv_daily, daily_ret = load_and_prepare()
-vix = pd.read_parquet('/Users/macbook/btc_project/data/vix_daily.parquet')
+vix = pd.read_parquet(BASE_DIR / 'data' / 'vix_daily.parquet')
 vix.index = pd.to_datetime(vix.index).tz_localize('America/New_York')
 
 common = daily_ret.index.intersection(vix.index)

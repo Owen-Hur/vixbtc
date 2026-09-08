@@ -3,13 +3,17 @@ Fear & Greed Index — BTC Trading Signal Analysis
 """
 import numpy as np
 import pandas as pd
+from pathlib import Path
 from scipy import stats
 from rv_regime.data_loader import load_and_prepare
+
+# 저장소 루트 (data/ 가 있는 곳) — 실행 위치와 무관하게 파일 위치로부터 계산
+BASE_DIR = Path(__file__).resolve().parents[2]
 
 # ── Load data ────────────────────────────────────────────────────────
 rv_daily, daily_ret = load_and_prepare()
 
-fg = pd.read_parquet("/Users/macbook/btc_project/data/fear_greed_daily.parquet")
+fg = pd.read_parquet(BASE_DIR / 'data' / 'fear_greed_daily.parquet')
 print(f"\n[F&G] shape={fg.shape}, columns={list(fg.columns)}")
 print(fg.head())
 

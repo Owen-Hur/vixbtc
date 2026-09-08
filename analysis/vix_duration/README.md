@@ -36,7 +36,7 @@ T-day 17:14 ≡  절대 시각 익일 09:30 ET (다음 미국 시장 개장)
 | `charts/vix_duration_2sigma_events.png` | 2σ 이벤트 평균 경로 |
 | `data/vix_duration_minute_metrics.csv` | 분 단위 원자료 (1,035개 시점) |
 | `data/vix_duration_summary.json` | 핵심 수치 요약 |
-| `archive/` | 이전 분석 (16:00 기준, 16:15 기준 — 참고용) |
+| `archive/` | 이전 분석 (16:15 기준 — 참고용). 가장 오래된 16:00 기준(`vix_overnight_*`) 분석은 중복 제거를 위해 `../vix_overnight_granger/` 로 일원화했습니다. |
 
 ---
 
@@ -91,7 +91,6 @@ T-day 윈도우 방향 예측 채널 없음 → 거래 불가.
 
 | 폴더/파일 | 시간축 | 문제점 | 보관 사유 |
 |----------|--------|--------|----------|
-| `vix_overnight_*.py/png/csv` | 16:00 ET base | 16:00~16:15 사이 15분 lookahead bias | 참고용 |
 | `vix_duration_1615_*.py/png/csv/json` | 16:15 ET base | lookahead-free이지만 절대 시각 표현 | 참고용 (수치 결과는 본 분석과 거의 동일) |
 | `vix_duration_*.csv/json` (현재) | T-day 시간축 | — | **최신·올바른 결론** |
 

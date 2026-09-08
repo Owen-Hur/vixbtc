@@ -1,5 +1,5 @@
 """
-02_download_vix_daily.py
+fetch_vix_daily.py
 
 FRED(St. Louis Fed)에서 VIX 일간 종가 다운로드.
 2020-01-01 ~ 2026-05-28.

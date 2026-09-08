@@ -1,3 +1,10 @@
+"""
+vix_btc_response.parquet 에서 보고서 인용용 수치를 콘솔로 출력한다.
+전기/후기 상관 비교, VIX 레벨별 상관, permutation test, event study,
+상승/하락 비대칭, dose-response 를 차례로 계산한다(파일 산출물 없음).
+
+입력: data/vix_btc_response.parquet, data/btc_1m_24h/
+"""
 import pandas as pd
 import numpy as np
 from scipy import stats

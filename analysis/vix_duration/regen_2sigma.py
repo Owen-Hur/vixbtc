@@ -2,11 +2,14 @@
 import pandas as pd
 import numpy as np
 import os
+from pathlib import Path
 import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 
-BASE = "/Users/macbook/btc_project"
+# 저장소 루트 (data/ 가 있는 곳) — 실행 위치와 무관하게 파일 위치로부터 계산
+BASE = str(Path(__file__).resolve().parents[2])
+HERE = str(Path(__file__).resolve().parent)   # analysis/vix_duration/
 ET = "America/New_York"
 matplotlib.rcParams['font.family'] = 'AppleGothic'
 matplotlib.rcParams['axes.unicode_minus'] = False
@@ -75,6 +78,6 @@ ax.grid(alpha=0.25)
 ax.tick_params(colors=NAVY, labelsize=8)
 for sp in ax.spines.values(): sp.set_color("#CCCCCC")
 plt.tight_layout()
-plt.savefig(f"{BASE}/vix_duration/charts/slide_2sigma.png", dpi=200, bbox_inches="tight")
+plt.savefig(f"{HERE}/charts/slide_2sigma.png", dpi=200, bbox_inches="tight")
 plt.close()
 print("saved slide_2sigma.png")

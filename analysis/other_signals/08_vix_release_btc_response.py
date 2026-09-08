@@ -42,12 +42,15 @@ import numpy as np
 from pathlib import Path
 from scipy import stats
 
-vix = pd.read_parquet('/Users/macbook/btc_project/data/vix_daily.parquet')
+# 저장소 루트 (data/ 가 있는 곳) — 실행 위치와 무관하게 파일 위치로부터 계산
+BASE_DIR = Path(__file__).resolve().parents[2]
+
+vix = pd.read_parquet(BASE_DIR / 'data' / 'vix_daily.parquet')
 vix.index = pd.to_datetime(vix.index).tz_localize('America/New_York')
 vix['vix_change'] = vix['vix'].diff()
 vix['vix_pct'] = vix['vix'].pct_change()
 
-btc_dir = Path('/Users/macbook/btc_project/data/btc_1m_24h')
+btc_dir = BASE_DIR / 'data' / 'btc_1m_24h'
 btc = pd.concat([pd.read_parquet(f) for f in sorted(btc_dir.glob('btc_1m_*.parquet'))]).sort_index()
 btc = btc[~btc.index.duplicated(keep='last')]
 
@@ -104,4 +107,4 @@ for yr in sorted(df['year'].unique()):
             print(f"{r:>+10.3f}", end="")
     print()
 
-df.to_parquet('/Users/macbook/btc_project/first/data/vix_btc_response_full.parquet')
+df.to_parquet(BASE_DIR / 'data' / 'vix_btc_response_full.parquet')

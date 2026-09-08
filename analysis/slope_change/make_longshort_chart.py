@@ -1,10 +1,15 @@
 """양방향 분해(Long/Short) 적중률 차트 — 덱 팔레트"""
 import numpy as np
+from pathlib import Path
 import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 matplotlib.rcParams['font.family']='AppleGothic'
 matplotlib.rcParams['axes.unicode_minus']=False
+
+# 저장소 루트 (data/ 가 있는 곳) — 실행 위치와 무관하게 파일 위치로부터 계산
+BASE = Path(__file__).resolve().parents[2]
+HERE = Path(__file__).resolve().parent   # analysis/slope_change/
 
 NAVY="#122B46"; STEEL="#5B7B9A"; RED="#A93226"; MUTE="#6B7280"
 
@@ -34,7 +39,8 @@ ax.grid(alpha=0.25,axis="y")
 ax.tick_params(colors=NAVY,labelsize=9)
 for sp in ax.spines.values(): sp.set_color("#CCCCCC")
 plt.tight_layout()
-out="/Users/macbook/btc_project/_slide_assets/slide_longshort.png"
+(BASE/"_slide_assets").mkdir(parents=True, exist_ok=True)
+out=str(BASE/"_slide_assets"/"slide_longshort.png")
 plt.savefig(out,dpi=200,bbox_inches="tight")
-plt.savefig("/Users/macbook/btc_project/slope_change/charts/slope_change_longshort.png",dpi=200,bbox_inches="tight")
+plt.savefig(str(HERE/"charts"/"slope_change_longshort.png"),dpi=200,bbox_inches="tight")
 print("saved",out)

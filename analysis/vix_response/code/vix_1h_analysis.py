@@ -1,3 +1,10 @@
+"""
+VIX 1시간봉 기준 반응 데이터로 (1) 전체 표본 (2) 장중(9~16시) (3) |변화율|>2σ 급변
+이벤트의 시차별 상관을 비교한다.
+
+입력: data/vix_1h_btc_response.parquet
+출력: vix_1h_analysis.png
+"""
 import pandas as pd
 import numpy as np
 from scipy import stats

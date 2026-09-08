@@ -1,3 +1,10 @@
+"""
+VIX→BTC 일별 반응 분석을 2024-01-01 이후 표본으로 한정해 재검증한다
+(시차별 상관, permutation test 10,000회, dose-response 등).
+
+입력: data/vix_btc_response.parquet
+출력: vix_analysis_2024.png
+"""
 import pandas as pd
 import numpy as np
 from scipy import stats

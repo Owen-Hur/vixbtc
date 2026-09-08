@@ -5,7 +5,7 @@
 | 폴더 | 질문 | 결론 | 상태 | 재실행 검증 (2026-09-08) |
 |---|---|---|---|---|
 | `rv_regime/` | BTC 자체 RV 레짐으로 방향을 잡을 수 있는가? | 편향 제거 시 Sharpe 0.02, B&H 대비 -109.0%p — 알파 소멸 | 기각 | ✅ 편향 제거판 완전 재현 (-57.4%, Sharpe 0.02, -109.0%p) |
-| `vix_response/` | VIX 발표 후 BTC는 언제·어떻게 반응하는가? | 2020~2022엔 6h 피크, 2023+ 소멸 | 중간 단계 | 재실행 안 함 (최종 결론에 미기여하는 중간 단계 코드) |
+| [`vix_response/`](vix_response/README.md) | VIX 발표 후 BTC는 언제·어떻게 반응하는가? | 2020~2022엔 6h 피크, 2023+ 소멸 | 중간 단계 | 재실행 안 함 (최종 결론에 미기여하는 중간 단계 코드) |
 | `vix_overnight_granger/` | 야간 구간에 시차 예측력이 남아 있는가? | Granger 인과 불성립 | P0 종결 | ✅ 리포트 3종 바이트 단위 동일 재생성 |
 | `vix_threshold/` | 임계 필터 + 부호를 데이터로 학습하면? | Bonferroni 보정 후 유의 임계 없음 | 기각 | ✅ 리포트·CSV 바이트 단위 동일 재생성 |
 | **`slope_change/` ★** | slope 변화율이 익일 장중 방향을 예측하는가? | **IS 50.5% / OOS 50.4%, p=0.836** | **기각** | ✅ 완전 재현 (편향 대조군 OOS 61.8% 포함) |
@@ -13,7 +13,9 @@
 | `other_signals/` | 펀딩비 · ETF flow · DVOL · F&G는? | 단독 예측력 없음 (펀딩 r = −0.005) | 부가 | 재실행 안 함 (최종 결론에 미기여하는 부가 신호) |
 
 > **재현 방법 메모**
-> - 분석 스크립트는 저장소 루트의 `data/` 를 기준 경로로 참조합니다. 스크립트 상단의 `BASE_DIR` 를 로컬 경로로 바꿔 실행하십시오.
+> - 분석 스크립트는 저장소 루트의 `data/` 를 기준 경로로 참조합니다. `slope_change/` · `vix_duration/` · `other_signals/` 는
+>   스크립트 상단에서 `Path(__file__).resolve().parents[N]` 로 루트를 계산하므로 실행 위치와 무관합니다.
+>   `vix_overnight_granger/` · `vix_threshold/` · `vix_response/` 는 `data/...` 상대경로를 그대로 쓰므로 저장소 루트에서 실행하십시오.
 > - `vix_overnight_granger/code/vix_granger.py` 는 `grangercausalitytests(..., verbose=False)` 를 사용합니다.
 >   statsmodels 0.15+ 에서는 이 인자가 제거되었으므로 삭제하거나 `statsmodels<0.15` 를 설치하십시오(결과는 동일).
 > - `rv_regime/revised/` 는 `rv_regime` 패키지로 import되며 `config.py` 가 별도로 필요합니다

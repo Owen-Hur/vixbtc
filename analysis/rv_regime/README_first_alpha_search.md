@@ -20,8 +20,8 @@ analysis/rv_regime/
     └── lstm_ae_residual_analysis.log  # LSTM-AE 잔차 분석 출력
 
 analysis/other_signals/                # 아래 3~7단계를 생성한 스크립트
+                                      # (VIX 일별 수집은 data_collection/fetch_vix_daily.py 로 통합)
 ├── 01_download_funding_rate.py
-├── 02_download_vix_daily.py
 ├── 03_btc_volatility_direction.py
 ├── 04_fixed_param_with_funding.py     # ← 3단계
 ├── 05_rv_ratio_funding_combined.py    # ← 4단계

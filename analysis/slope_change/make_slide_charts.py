@@ -2,12 +2,14 @@
 import pandas as pd
 import numpy as np
 import json
+from pathlib import Path
 import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import matplotlib.font_manager as fm
 
-BASE = "/Users/macbook/btc_project/slope_change"
+# 이 스크립트가 있는 폴더(analysis/slope_change/) 기준 — data/ · charts/ 하위 폴더 참조
+BASE = str(Path(__file__).resolve().parent)
 
 # 한글 폰트 (AppleGothic)
 matplotlib.rcParams['font.family'] = 'AppleGothic'

@@ -2,11 +2,13 @@
 import pandas as pd
 import numpy as np
 import json
+from pathlib import Path
 import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 
-BASE = "/Users/macbook/btc_project/vix_duration"
+# 이 스크립트가 있는 폴더(analysis/vix_duration/) 기준 — data/ · charts/ 하위 폴더 참조
+BASE = str(Path(__file__).resolve().parent)
 matplotlib.rcParams['font.family'] = 'AppleGothic'
 matplotlib.rcParams['axes.unicode_minus'] = False
 

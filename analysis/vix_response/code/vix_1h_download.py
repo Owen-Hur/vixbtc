@@ -1,3 +1,8 @@
+"""
+yfinance 로 ^VIX 1시간봉을 내려받아 UTC→ET 로 변환해 저장한다.
+
+출력: data/vix_1h.parquet
+"""
 import yfinance as yf
 import pandas as pd
 import os

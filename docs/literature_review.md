@@ -5,7 +5,7 @@
 ### 0. Luo, Tsai & Yen (2026) — 프로젝트 출발점
 - 제목: Volatility Transmission to Bitcoin: The Role of VIX Term Structure and Crypto Options Markets
 - 저널: SSRN preprint (미출판, 피어 리뷰 없음)
-- 파일: `../ssrn-6233752.pdf`
+- 파일: `ssrn-6233752.pdf` — **저작권상 저장소에는 포함하지 않았습니다.** SSRN(초록번호 6233752)에서 직접 내려받으십시오.
 - 핵심 발견: VIX slope(PCA2)이 level(PCA1)보다 BTC 수익률에 2.3배 강한 설명력. 단, 동시적 관계만 유의하고 래그 효과는 없음.
 - 프로젝트 적용: Slope-HMM 전략의 근거로 사용 → look-ahead bias 수정 후 전략 실패 → 폐기
 - 비판: 동시적 관계만 존재하므로 트레이딩 시그널로 사용 불가. PCA 스케일 차이 미고려, R²=0.118로 설명력 미미, 시간대 불일치 미언급.

@@ -1,3 +1,11 @@
+"""
+VIX 1시간봉 변동을 "확인한 뒤" 실제로 거래 가능한 몫이 얼마나 남는지 측정한다.
+VIX 변동 구간 중 이미 발생한 BTC 변화(btc_during, t-1h~t)와 확인 이후의 잔여
+반응(btc_after, t~t+Xm)을 분리해 비교한다.
+
+입력: data/vix_1h_btc_response.parquet
+출력: vix_1h_tradeable.png
+"""
 import pandas as pd
 import numpy as np
 from scipy import stats

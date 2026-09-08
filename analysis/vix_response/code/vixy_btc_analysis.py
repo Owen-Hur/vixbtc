@@ -1,3 +1,11 @@
+"""
+VIX 대신 실제 거래 가능한 VIXY(VIX ETF) 1분봉을 사용해, 직전 5분간 2σ 이상 급변한
+장중 시점 이후 BTC 가 60분간 어떻게 움직이는지 측정한다(감지 시점에 이미 확정된
+변화만 사용하므로 lookahead-free).
+
+입력: data/vixy_1m/, data/btc_1m_24h/
+출력: vixy_btc_analysis.png
+"""
 import pandas as pd
 import numpy as np
 from scipy import stats

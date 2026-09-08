@@ -1,3 +1,10 @@
+"""
+VIXY 급변 이벤트(5분 2σ, 30분 중복 제거) 전후 -5분~+120분 구간의 BTC 평균 경로를
+추적해, 신호가 방향성을 유지하는 '유효 지속시간'을 시점별 t-test 로 추정한다.
+
+입력: data/vixy_1m/, data/btc_1m_24h/
+출력: vixy_effective_duration.png
+"""
 import pandas as pd
 import numpy as np
 from scipy import stats

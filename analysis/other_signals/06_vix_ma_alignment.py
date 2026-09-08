@@ -21,11 +21,15 @@ VIX 다중 MA 정배열/역배열 → BTC 영향 분석.
 """
 import pandas as pd
 import numpy as np
+from pathlib import Path
 from rv_regime.data_loader import load_and_prepare, load_daily_funding
+
+# 저장소 루트 (data/ 가 있는 곳) — 실행 위치와 무관하게 파일 위치로부터 계산
+BASE_DIR = Path(__file__).resolve().parents[2]
 
 rv_daily, daily_ret = load_and_prepare()
 daily_funding = load_daily_funding()
-vix = pd.read_parquet('/Users/macbook/btc_project/data/vix_daily.parquet')
+vix = pd.read_parquet(BASE_DIR / 'data' / 'vix_daily.parquet')
 vix.index = pd.to_datetime(vix.index).tz_localize('America/New_York')
 
 common = daily_ret.index.intersection(vix.index)

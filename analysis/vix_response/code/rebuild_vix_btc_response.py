@@ -1,3 +1,10 @@
+"""
+VIX 종가(16:00 ET) 확정 시점을 기준으로, BTC 1분봉에서 1분~24시간 후 수익률을
+시차별로 추출해 반응 데이터셋을 재구축한다.
+
+입력: data/vix_daily.parquet, data/btc_1m_24h/
+출력: data/vix_btc_response.parquet
+"""
 import pandas as pd
 import numpy as np
 import os
